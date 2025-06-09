@@ -14,18 +14,17 @@ export default function EventParticipantList({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch participants data when the component mounts
-    const fetchParticipants = async () => {
-      try {
-        setParticipants(participantList);
-      } catch (error) {
-        console.error("Failed to fetch participants:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchParticipants();
-  }, []);
+    setParticipants(participantList);
+    setLoading(false);
+  }, [participantList]);
+
+  if (loading) {
+    return <p>Loading participants…</p>;
+  }
+
+  if (participants.length === 0) {
+    return <p>No participants found.</p>;
+  }
 
   const handleUpdate = async (id: string, status: string) => {
     let path = `/api/statusUpdate/${id}/${status}`;

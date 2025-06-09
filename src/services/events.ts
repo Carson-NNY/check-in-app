@@ -31,7 +31,7 @@ export async function fetchEvents() {
   }
 }
 
-export async function fetchEventsByRange(start: string, end: string) {
+export async function fetchEventsByDateRange(start: string, end: string) {
   try {
     const res = await fetch(EVENT_GET_URL, {
       method: "POST",
@@ -44,6 +44,7 @@ export async function fetchEventsByRange(start: string, end: string) {
             ["start_date", ">=", `${start}`],
             ["end_date", "<", `${end}`],
           ],
+          orderBy: { start_date: "ASC" },
           limit: 100,
         }),
       }),

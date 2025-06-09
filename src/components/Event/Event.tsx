@@ -1,108 +1,137 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import DateFilters from "@/components/Event/Filters/DateFilter";
+import EventList from "./EventList";
+import { fetchEventsByDate } from "@/hooks/useEvents";
 import styles from "./Event.module.css";
 
-type EventProps = { events?: any[] };
-
-export default function Event(props?: EventProps) {
-  const [eventList, setEventList] = useState<any[]>(props?.events || []);
-
-  const router = useRouter();
-  const currentYear = new Date().getFullYear();
+export default function EventPage({ events = [] }: { events?: any[] }) {
+  const [eventList, setEventList] = useState<any[]>([]);
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async () => {
-    if (!year) return;
-    let path = `/api/events/${year}`;
-    if (month) {
-      path += `/${month}`;
-    }
-    if (day) {
-      path += `/${day}`;
-    }
+  const handleYearChange = (newYear: string) => {
+    setYear(newYear);
+    setMonth("");
+    setDay("");
+  };
+  const handleMonthChange = (newMonth: string) => {
+    setMonth(newMonth);
+    setDay("");
+  };
+  const handleDayChange = (newDay: string) => {
+    setDay(newDay);
+  };
+
+  // Update the URL with the selected year/month/day so when page is refreshed, the same events are preserved
+  // currenrly only preserve year/month/day
+  // const updateURL = (year: string, month: string, day: string) => {
+  //   const query = new URLSearchParams();
+  //   if (year) query.set("year", year);
+  //   if (month) query.set("month", month);
+  //   if (day) query.set("day", day);
+  //   const newUrl = `${window.location.pathname}?${query.toString()}`;
+  //   window.history.replaceState(null, "", newUrl);
+  // };
+
+  const handleDateSearch = async () => {
+    // Update the URL with the selected year/month/day so when page is refreshed, the same events are preserved
+    // updateURL(year, month, day);
+
     try {
-      const response = await fetch(path);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setEventList(Array.isArray(data) ? data : []);
+      const data = await fetchEventsByDate(year, month, day);
+      setEventList(data);
     } catch (error) {
       console.error("Error fetching events:", error);
+      setError(`handleDateSearch() failed in Event.tsx — ${error}`);
     }
   };
 
+  const handleSearchTodaysEvents = async () => {
+    const today = new Date();
+    const year = today.getFullYear().toString();
+    const month = (today.getMonth() + 1).toString().padStart(2, "0");
+    const day = today.getDate().toString().padStart(2, "0");
+    // updateURL(year, month, day);
+    setYear(year);
+    setMonth(month);
+    setDay(day);
+
+    try {
+      const data = await fetchEventsByDate(year, month, day);
+      setEventList(data);
+    } catch (error) {
+      console.error("Error fetching today's events:", error);
+      setError(
+        `handleSearchTodaysEvents() failed in the component(Event.tsx) — ${error}`
+      );
+    }
+  };
+
+  useEffect(() => {
+    // every time the page is loaded, check the URL for year/month/day params
+    const params = new URLSearchParams(window.location.search);
+    const y = params.get("year");
+    const m = params.get("month");
+    const d = params.get("day");
+
+    if (y) {
+      setYear(y);
+      if (m) setMonth(m);
+      if (d) setDay(d);
+      fetchEventsByDate(y, m || undefined, d || undefined)
+        .then(setEventList)
+        .catch((error) => {
+          console.error("Error loading filtered events:", error);
+          setError(`Initial fetch failed: ${error}`);
+        });
+    } else {
+      handleSearchTodaysEvents();
+    }
+  }, []);
+
   return (
     <div className={styles.page}>
-      <div
-        style={{
-          display: "flex",
-          gap: "8px",
-          alignItems: "center",
-          marginBottom: "26px",
-        }}
+      {/* general date filter for display chosen year/month/day's events */}
+      <DateFilters
+        year={year}
+        month={month}
+        day={day}
+        onYearChange={handleYearChange}
+        onMonthChange={handleMonthChange}
+        onDayChange={handleDayChange}
+        onSearch={handleDateSearch}
+      />
+
+      {/* The button only to display today's events */}
+      <button
+        style={{ marginTop: "15px", marginBottom: "15px" }}
+        onClick={handleSearchTodaysEvents}
       >
-        {/* Year Dropdown */}
-        <select value={year} onChange={(e) => setYear(e.target.value)}>
-          <option value="">Year</option>
-          {Array.from({ length: 30 }, (_, i) => currentYear - 20 + i).map(
-            (y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            )
-          )}
-        </select>
+        Today's Events
+      </button>
 
-        {/* Month Dropdown */}
-        <select
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          disabled={!year}
-        >
-          <option value="">Month</option>
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-            <option key={m} value={String(m).padStart(2, "0")}>
-              {String(m).padStart(2, "0")}
-            </option>
-          ))}
-        </select>
-
-        {/* Day Dropdown */}
-        <select
-          value={day}
-          onChange={(e) => setDay(e.target.value)}
-          disabled={!month}
-        >
-          <option value="">Day</option>
-          {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-            <option key={d} value={String(d).padStart(2, "0")}>
-              {String(d).padStart(2, "0")}
-            </option>
-          ))}
-        </select>
-
-        <button onClick={handleSearch}>Search</button>
-      </div>
-      <main className={styles.main}>
-        <div>
-          <h1>Events</h1>
-          {eventList?.map((p: any, i: number) => (
-            <div key={i}>
-              <button
-                onClick={() => router.push(`/event_participants/${p.id}`)}
-              >
-                event_id: {p.id}
-              </button>
-              , title: {p.title}, - date: start_date: {p.start_date}, end_date:{" "}
-              {p.end_date}
-            </div>
-          ))}
+      {error && (
+        <div className={styles.error}>
+          {error}{" "}
+          <button
+            style={{
+              marginTop: "15px",
+              marginBottom: "15px",
+              marginLeft: "10px",
+            }}
+            onClick={() => setError(null)}
+          >
+            Reset Error
+          </button>
         </div>
+      )}
+
+      <main className={styles.main}>
+        <EventList events={eventList} />
       </main>
     </div>
   );

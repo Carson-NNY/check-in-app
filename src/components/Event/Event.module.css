@@ -27,6 +27,13 @@
   font-weight: 600;
 }
 
+.error {
+  font-weight: 600;
+  background-color: rgb(242, 8, 8);
+  color: white;
+  padding: 4px 8px;
+}
+
 @media (max-width: 600px) {
   .main {
     align-items: center;

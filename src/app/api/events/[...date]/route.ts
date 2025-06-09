@@ -1,6 +1,6 @@
 // src/app/api/events/[...date]/route.ts
 import { NextResponse } from "next/server";
-import { fetchEventsByRange } from "@/services/events";
+import { fetchEventsByDateRange } from "@/services/events";
 
 export async function GET(
   request: Request,
@@ -56,12 +56,13 @@ export async function GET(
   }
 
   try {
-    const events = await fetchEventsByRange(start, end);
+    const events = await fetchEventsByDateRange(start, end);
     return NextResponse.json(events);
   } catch (error) {
     console.error("Error in /api/events/[...date]", error);
     return NextResponse.json(
-      { error: "Failed to load events" },
+      // { error: "Failed to load events" },
+      { error: `Error in /api/events/[...date] — ${error}` },
       { status: 500 }
     );
   }
