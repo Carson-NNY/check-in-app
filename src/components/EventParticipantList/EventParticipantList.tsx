@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 
 export default function EventParticipantList({
   participantList,
+  setError,
 }: {
   participantList: any[];
+  setError: (error: string | null) => void;
 }) {
   // State to hold participants data
   const [participants, setParticipants] = useState<any[]>(
@@ -22,20 +24,18 @@ export default function EventParticipantList({
     return <p>Loading participants…</p>;
   }
 
-  if (participants.length === 0) {
-    return <p>No participants found.</p>;
-  }
-
   const handleUpdate = async (id: string, status: string) => {
-    let path = `/api/statusUpdate/${id}/${status}`;
+    // let path = `/api/statusUpdate/${id}/${status}`;
     try {
       const response = await fetch(`/api/statusUpdate/${id}/${status}`, {
         method: "POST",
       });
       if (!response.ok) {
+        setError(`Failed to update status: ${response.statusText}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
+      setError(`Error updating check-in status: ${error}`);
       console.error("Error updating status:", error);
     }
   };

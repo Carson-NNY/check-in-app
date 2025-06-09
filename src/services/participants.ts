@@ -61,6 +61,7 @@ export async function fetchParticipantByEventId(eventId: any) {
             "contact_id.sort_name", // implicit join
           ],
           where: [["event_id", "=", eventId]],
+          orderBy: { "contact_id.sort_name": "ASC" },
           limit: 20,
         }),
       }),
@@ -82,6 +83,7 @@ export async function fetchParticipantByEventId(eventId: any) {
   }
 }
 
+// Note: the res reponded by server is always 200, even if the update failed
 export async function updateParticipantStatusAttended(
   participantId: string,
   status: string

@@ -2,8 +2,8 @@
 
 import styles from "../.././page.module.css";
 import EventParticipantList from "@/components/EventParticipantList/EventParticipantList";
-import { fetchParticipantsByEventId } from "@/hooks/useParticipants";
 import { useState, useEffect } from "react";
+import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 
 export default function EventParticipants({
   params,
@@ -33,31 +33,38 @@ export default function EventParticipants({
 
     const fetchData = async () => {
       try {
-        const data = await fetchParticipantsByEventId(eventId);
-        console.log("Fetched participants:", data);
-        setParticipants(data);
+        try {
+          // make the API call from the server side
+          const response = await fetch(`/api/eventParticipants/${eventId}`);
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Status: ${response.status}, Cause: ${errorText}`);
+          }
+
+          const data = await response.json();
+          setParticipants(Array.isArray(data) ? data : []);
+        } catch (error) {
+          console.error("Error fetching participants:", error);
+          throw error;
+        }
       } catch (err) {
         console.error("Error fetching participants:", err);
-        setError("Failed to load participants.");
+        setError("useEffect failed in event_participants/[id] — " + err);
       }
     };
 
     fetchData();
   }, [eventId]);
 
-  if (!eventId) {
-    return <h1 className={styles.page}>Error: Event ID is required.</h1>;
-  }
-
   return (
     <div className={styles.page}>
       <h1>Event Participants</h1>
+      <ErrorMessage error={error} setError={setError} />
       <div>Event ID: {eventId}</div>
-      {error ? (
-        <div className={styles.error}>{error}</div>
-      ) : (
-        <EventParticipantList participantList={participants} />
-      )}
+      <EventParticipantList
+        participantList={participants}
+        setError={setError}
+      />
     </div>
   );
 }

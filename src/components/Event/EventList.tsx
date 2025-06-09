@@ -11,7 +11,7 @@ export default function EventList({ events = [] }: { events: any[] }) {
           <button onClick={() => router.push(`/event_participants/${p.id}`)}>
             event_id: {p.id}
           </button>
-          , title: {p.title}, - date: start: {p.start_date}, end: {p.end_date}
+          , title: {p.title}, - date: start: {p.start_date}
         </div>
       ))}
     </div>

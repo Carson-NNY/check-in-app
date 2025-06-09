@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import DateFilters from "@/components/Event/Filters/DateFilter";
 import EventList from "./EventList";
 import { fetchEventsByDate } from "@/hooks/useEvents";
 import styles from "./Event.module.css";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import SortByDate from "./Sort/SortByDate";
 
 export default function EventPage({ events = [] }: { events?: any[] }) {
   const [eventList, setEventList] = useState<any[]>([]);
@@ -12,6 +14,9 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // limit the state to "ASC" or "DESC" or null
+  const [sortByDate, setSortByDate] = useState<"ASC" | "DESC" | null>(null);
 
   const handleYearChange = (newYear: string) => {
     setYear(newYear);
@@ -44,6 +49,7 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
     try {
       const data = await fetchEventsByDate(year, month, day);
       setEventList(data);
+      setSortByDate(null);
     } catch (error) {
       console.error("Error fetching events:", error);
       setError(`handleDateSearch() failed in Event.tsx — ${error}`);
@@ -59,6 +65,7 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
     setYear(year);
     setMonth(month);
     setDay(day);
+    setSortByDate(null);
 
     try {
       const data = await fetchEventsByDate(year, month, day);
@@ -72,26 +79,33 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
   };
 
   useEffect(() => {
-    // every time the page is loaded, check the URL for year/month/day params
-    const params = new URLSearchParams(window.location.search);
-    const y = params.get("year");
-    const m = params.get("month");
-    const d = params.get("day");
-
-    if (y) {
-      setYear(y);
-      if (m) setMonth(m);
-      if (d) setDay(d);
-      fetchEventsByDate(y, m || undefined, d || undefined)
-        .then(setEventList)
-        .catch((error) => {
-          console.error("Error loading filtered events:", error);
-          setError(`Initial fetch failed: ${error}`);
-        });
-    } else {
+    if (eventList.length == 0) {
+      // If events are passed as props, use them directly
       handleSearchTodaysEvents();
     }
   }, []);
+
+  // useEffect(() => {
+  //   // every time the page is loaded, check the URL for year/month/day params
+  //   const params = new URLSearchParams(window.location.search);
+  //   const y = params.get("year");
+  //   const m = params.get("month");
+  //   const d = params.get("day");
+
+  //   if (y) {
+  //     setYear(y);
+  //     if (m) setMonth(m);
+  //     if (d) setDay(d);
+  //     fetchEventsByDate(y, m || undefined, d || undefined)
+  //       .then(setEventList)
+  //       .catch((error) => {
+  //         console.error("Error loading filtered events:", error);
+  //         setError(`Initial fetch failed: ${error}`);
+  //       });
+  //   } else {
+  //     handleSearchTodaysEvents();
+  //   }
+  // }, []);
 
   return (
     <div className={styles.page}>
@@ -108,27 +122,21 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
 
       {/* The button only to display today's events */}
       <button
-        style={{ marginTop: "15px", marginBottom: "15px" }}
+        style={{ marginTop: "15px", marginBottom: "15px", marginRight: "15px" }}
         onClick={handleSearchTodaysEvents}
       >
         Today's Events
       </button>
 
-      {error && (
-        <div className={styles.error}>
-          {error}{" "}
-          <button
-            style={{
-              marginTop: "15px",
-              marginBottom: "15px",
-              marginLeft: "10px",
-            }}
-            onClick={() => setError(null)}
-          >
-            Reset Error
-          </button>
-        </div>
-      )}
+      {/* Sort by date */}
+      <SortByDate
+        sortByDate={sortByDate}
+        setSortByDate={setSortByDate}
+        eventList={eventList}
+        setEventList={setEventList}
+      />
+
+      <ErrorMessage error={error} setError={setError} />
 
       <main className={styles.main}>
         <EventList events={eventList} />

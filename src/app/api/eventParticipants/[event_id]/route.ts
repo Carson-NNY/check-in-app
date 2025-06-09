@@ -16,7 +16,6 @@ export async function GET(
   }
 
   try {
-    console.log("Fetching participants for event_id:", event_id);
     const participants = await fetchParticipantByEventId(event_id);
     // console.log("Fetched participants:", participants);
     return NextResponse.json(participants);
