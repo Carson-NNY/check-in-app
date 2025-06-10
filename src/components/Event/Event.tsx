@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useMemo, useDeferredValue } from "react";
 import DateFilters from "@/components/Event/Filters/DateFilter";
 import EventList from "./EventList";
 import { fetchEventsByDate } from "@/hooks/useEvents";
 import styles from "./Event.module.css";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import SortByDate from "./Sort/SortByDate";
+import SortByTitle from "./Sort/SortByTitle";
+import SearchBox from "../SearchBox/SearchBox";
 
 export default function EventPage({ events = [] }: { events?: any[] }) {
   const [eventList, setEventList] = useState<any[]>([]);
@@ -14,9 +16,20 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
   const [error, setError] = useState<string | null>(null);
-
   // limit the state to "ASC" or "DESC" or null
-  const [sortByDate, setSortByDate] = useState<"ASC" | "DESC" | null>(null);
+  const [sortByDate, _setSortByDate] = useState<"ASC" | "DESC" | null>(null);
+  const [sortByTitle, _setSortByTitle] = useState<"ASC" | "DESC" | null>(null);
+  const [search, setSearch] = useState<string>("");
+  const deferredSearch = useDeferredValue(search);
+
+  const displayedEvents = useMemo(() => {
+    if (deferredSearch.trim() === "") return eventList;
+
+    const kw = deferredSearch.toLowerCase();
+    return eventList.filter((event) => {
+      return (event.title ?? "").toLowerCase().includes(kw);
+    });
+  }, [eventList, deferredSearch]);
 
   const handleYearChange = (newYear: string) => {
     setYear(newYear);
@@ -29,6 +42,21 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
   };
   const handleDayChange = (newDay: string) => {
     setDay(newDay);
+  };
+
+  // wrapper setters
+  const setSortByDate = (order: "ASC" | "DESC" | null) => {
+    _setSortByDate(order);
+    if (order !== null) {
+      _setSortByTitle(null);
+    }
+  };
+
+  const setSortByTitle = (order: "ASC" | "DESC" | null) => {
+    _setSortByTitle(order);
+    if (order !== null) {
+      _setSortByDate(null);
+    }
   };
 
   // Update the URL with the selected year/month/day so when page is refreshed, the same events are preserved
@@ -49,7 +77,8 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
     try {
       const data = await fetchEventsByDate(year, month, day);
       setEventList(data);
-      setSortByDate(null);
+      _setSortByDate(null);
+      _setSortByTitle(null);
     } catch (error) {
       console.error("Error fetching events:", error);
       setError(`handleDateSearch() failed in Event.tsx — ${error}`);
@@ -65,7 +94,8 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
     setYear(year);
     setMonth(month);
     setDay(day);
-    setSortByDate(null);
+    _setSortByDate(null);
+    _setSortByTitle(null);
 
     try {
       const data = await fetchEventsByDate(year, month, day);
@@ -120,6 +150,8 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
         onSearch={handleDateSearch}
       />
 
+      <SearchBox search={search} setSearch={setSearch} />
+
       {/* The button only to display today's events */}
       <button
         style={{ marginTop: "15px", marginBottom: "15px", marginRight: "15px" }}
@@ -136,10 +168,21 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
         setEventList={setEventList}
       />
 
+      <span style={{ marginLeft: "14px" }}></span>
+
+      {/* Sort by title */}
+      <SortByTitle
+        sortByTitle={sortByTitle}
+        setSortByTitle={setSortByTitle}
+        eventList={eventList}
+        setEventList={setEventList}
+      />
+
       <ErrorMessage error={error} setError={setError} />
 
       <main className={styles.main}>
-        <EventList events={eventList} />
+        <EventList events={displayedEvents} />
+        {/* <EventList events={eventList} /> */}
       </main>
     </div>
   );

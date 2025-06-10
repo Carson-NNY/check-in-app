@@ -1,37 +1,3 @@
-// type SortByDateProps = {
-//   setEventList: (events: any[]) => void;
-//   setSortByDate: (sortBy: "ASC" | "DESC" | null) => void;
-//   sortByDate: "ASC" | "DESC" | null;
-// };
-
-// export default function SortByDate({
-//   setEventList,
-//   setSortByDate,
-//   sortByDate,
-// }: SortByDateProps) {
-//   // if sortByDate hasn't been set, set it to "ASC", if it is "ASC", set it to "DESC", if it is "DESC", set it to null
-//   const handleSort = (sortBy: "ASC" | "DESC" | null) => {
-//     switch (sortBy) {
-//       case null:
-//         setSortByDate("ASC");
-//         break;
-//       case "ASC":
-//         setSortByDate("DESC");
-//         break;
-//       case "DESC":
-//         setSortByDate(null);
-//         break;
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <button onClick={() => handleSort(sortByDate)}>Sort</button>
-//       {/* <button onClick={() => handleSort("DESC")}>Sort Descending</button> */}
-//     </div>
-//   );
-// }
-
 type SortOrder = "ASC" | "DESC" | null;
 
 type SortByDateProps = {

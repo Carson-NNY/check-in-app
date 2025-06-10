@@ -44,8 +44,6 @@ export async function fetchEventsByDateRange(start: string, end: string) {
             ["start_date", ">=", `${start}`],
             ["end_date", "<", `${end}`],
           ],
-          // orderBy: { start_date: "ASC", title: "ASC" },
-          orderBy: { title: "ASC" },
           limit: 100,
         }),
       }),
