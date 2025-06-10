@@ -2,17 +2,15 @@
 
 import { useEffect, useState } from "react";
 
+type Participant = {
+  participantList: any[];
+  setError: (error: string | null) => void;
+};
 export default function EventParticipantList({
   participantList,
   setError,
-}: {
-  participantList: any[];
-  setError: (error: string | null) => void;
-}) {
-  // State to hold participants data
-  const [participants, setParticipants] = useState<any[]>(
-    participantList || []
-  );
+}: Participant) {
+  const [participants, setParticipants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,54 +18,50 @@ export default function EventParticipantList({
     setLoading(false);
   }, [participantList]);
 
-  if (loading) {
-    return <p>Loading participants…</p>;
-  }
-
   const handleUpdate = async (id: string, status: string) => {
-    // let path = `/api/statusUpdate/${id}/${status}`;
     try {
-      const response = await fetch(`/api/statusUpdate/${id}/${status}`, {
+      const res = await fetch(`/api/statusUpdate/${id}/${status}`, {
         method: "POST",
       });
-      if (!response.ok) {
-        setError(`Failed to update status: ${response.statusText}`);
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!res.ok) {
+        setError(`Failed to update status: ${res.statusText}`);
+        throw new Error(`HTTP ${res.status}`);
       }
-    } catch (error) {
-      setError(`Error updating check-in status: ${error}`);
-      console.error("Error updating status:", error);
+    } catch (err) {
+      setError(`Error updating check-in status: ${err}`);
+      console.error(err);
     }
   };
 
+  if (loading) return <p>Loading participants…</p>;
+
   return (
-    <div>
-      {loading ? (
-        <p>Loading participants...</p>
-      ) : (
-        <ul>
-          {participants.map((participant: any, index) => (
-            <li key={index}>
-              Name: {participant["contact_id.sort_name"]} - register_date:{" "}
-              {participant.register_date} - Current Status:{" "}
-              {participant.statusLabel || participant["status_id:label"]} -
-              <button
-                onClick={() => {
-                  const updatedParticipants = [...participants];
-                  updatedParticipants[index] = {
-                    ...participant,
-                    statusLabel: "Attended",
-                  };
-                  setParticipants(updatedParticipants);
-                  handleUpdate(participant.id, "Attended");
-                }}
-              >
-                Check-in
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <ul>
+      {participants.map((participant: any, index) => {
+        const currentStatus =
+          participant.statusLabel ?? participant["status_id:label"];
+
+        return (
+          <li key={index} style={{ marginBottom: 3 }}>
+            Name: {participant["contact_id.sort_name"]} — Registered:{" "}
+            {participant.register_date} — Status: {currentStatus} —{" "}
+            <button
+              onClick={() => {
+                const updated = [...participants];
+                updated[index] = {
+                  ...participant,
+                  statusLabel: "Attended",
+                };
+                setParticipants(updated);
+                handleUpdate(participant.id, "Attended");
+              }}
+              disabled={currentStatus === "Attended"}
+            >
+              {currentStatus === "Attended" ? "Checked-in ✅" : "Check-in"}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

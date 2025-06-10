@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useDeferredValue } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DateFilters from "@/components/Event/Filters/DateFilter";
 import EventList from "./EventList";
 import { fetchEventsByDate } from "@/hooks/useEvents";
@@ -9,6 +9,7 @@ import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import SortByDate from "./Sort/SortByDate";
 import SortByTitle from "./Sort/SortByTitle";
 import SearchBox from "../SearchBox/SearchBox";
+import useDebounce from "@/hooks/useDebounce";
 
 export default function EventPage({ events = [] }: { events?: any[] }) {
   const [eventList, setEventList] = useState<any[]>([]);
@@ -20,7 +21,7 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
   const [sortByDate, _setSortByDate] = useState<"ASC" | "DESC" | null>(null);
   const [sortByTitle, _setSortByTitle] = useState<"ASC" | "DESC" | null>(null);
   const [search, setSearch] = useState<string>("");
-  const deferredSearch = useDeferredValue(search);
+  const deferredSearch = useDebounce(search, 500);
 
   const displayedEvents = useMemo(() => {
     if (deferredSearch.trim() === "") return eventList;
@@ -182,7 +183,7 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
 
       <main className={styles.main}>
         <EventList events={displayedEvents} />
-        {/* <EventList events={eventList} /> */}
+        {/* <EventList events={displayedEvents} highlight={search} /> */}
       </main>
     </div>
   );

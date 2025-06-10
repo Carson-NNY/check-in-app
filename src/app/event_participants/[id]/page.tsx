@@ -2,8 +2,10 @@
 
 import styles from "../.././page.module.css";
 import EventParticipantList from "@/components/EventParticipantList/EventParticipantList";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import useDebounce from "@/hooks/useDebounce";
+import SearchBox from "@/components/SearchBox/SearchBox";
 
 export default function EventParticipants({
   params,
@@ -13,6 +15,19 @@ export default function EventParticipants({
   const [eventId, setEventId] = useState<string | null>(null);
   const [participants, setParticipants] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState<string>("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  const displayedParticipants = useMemo(() => {
+    if (debouncedSearch.trim() === "") return participants;
+
+    const kw = debouncedSearch.toLowerCase();
+    return participants.filter((participant) => {
+      return (participant["contact_id.sort_name"] ?? "")
+        .toLowerCase()
+        .includes(kw);
+    });
+  }, [participants, debouncedSearch]);
 
   useEffect(() => {
     const unwrapParams = async () => {
@@ -59,10 +74,12 @@ export default function EventParticipants({
   return (
     <div className={styles.page}>
       <h1>Event Participants</h1>
+      {/* <SearchBox search={search} setSearch={setSearch} /> */}
       <ErrorMessage error={error} setError={setError} />
       <div>Event ID: {eventId}</div>
       <EventParticipantList
         participantList={participants}
+        // participantList={displayedParticipants}
         setError={setError}
       />
     </div>
