@@ -22,12 +22,11 @@ export default function SortByDate({
     // 2) reorder (or reset) the array
     setEventList(
       [...eventList].sort((a, b) => {
-        // adjust these to match your actual field name:
-        const aTime = new Date(a.start_date).getTime();
-        const bTime = new Date(b.start_date).getTime();
+        const safeParse = (s: string) =>
+          new Date(s.includes("T") ? s : s.replace(" ", "T")).getTime();
 
-        // ascending = earliest first, descending = latest first
-        return next === "ASC" ? aTime - bTime : bTime - aTime;
+        const diff = safeParse(a.start_date) - safeParse(b.start_date);
+        return next === "ASC" ? diff : -diff;
       })
     );
   };

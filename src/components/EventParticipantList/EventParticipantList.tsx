@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Highlight } from "../Highlight/Highlight";
 
 type Participant = {
   participantList: any[];
   setError: (error: string | null) => void;
+  highlight: string;
 };
 export default function EventParticipantList({
   participantList,
   setError,
+  highlight,
 }: Participant) {
   const [participants, setParticipants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,8 +46,13 @@ export default function EventParticipantList({
 
         return (
           <li key={index} style={{ marginBottom: 3 }}>
-            Name: {participant["contact_id.sort_name"]} — Registered:{" "}
-            {participant.register_date} — Status: {currentStatus} —{" "}
+            Name:
+            <Highlight
+              text={participant["contact_id.sort_name"]}
+              highlight={highlight}
+            />
+            — Registered: {participant.register_date} — Status: {currentStatus}{" "}
+            —{" "}
             <button
               onClick={() => {
                 const updated = [...participants];

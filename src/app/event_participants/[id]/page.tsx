@@ -74,13 +74,13 @@ export default function EventParticipants({
   return (
     <div className={styles.page}>
       <h1>Event Participants</h1>
-      {/* <SearchBox search={search} setSearch={setSearch} /> */}
+      <SearchBox search={search} setSearch={setSearch} />
       <ErrorMessage error={error} setError={setError} />
       <div>Event ID: {eventId}</div>
       <EventParticipantList
-        participantList={participants}
-        // participantList={displayedParticipants}
+        participantList={displayedParticipants}
         setError={setError}
+        highlight={search}
       />
     </div>
   );

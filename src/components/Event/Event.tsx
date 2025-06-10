@@ -182,8 +182,7 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
       <ErrorMessage error={error} setError={setError} />
 
       <main className={styles.main}>
-        <EventList events={displayedEvents} />
-        {/* <EventList events={displayedEvents} highlight={search} /> */}
+        <EventList events={displayedEvents} highlight={search} />
       </main>
     </div>
   );
