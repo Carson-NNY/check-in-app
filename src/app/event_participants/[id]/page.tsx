@@ -73,10 +73,13 @@ export default function EventParticipants({
 
   return (
     <div className={styles.page}>
-      <h2>Event Participants</h2>
+      <h2>
+        Event Participants{" "}
+        <span style={{ fontSize: "18px" }}>(Event ID: {eventId})</span>
+      </h2>
       <SearchBox search={search} setSearch={setSearch} />
       <ErrorMessage error={error} setError={setError} />
-      <div>Event ID: {eventId}</div>
+
       <EventParticipantList
         participantList={displayedParticipants}
         setError={setError}

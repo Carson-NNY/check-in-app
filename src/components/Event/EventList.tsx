@@ -1,11 +1,9 @@
 import { useRouter } from "next/navigation";
 import { Highlight } from "../Highlight/Highlight";
-import { Button } from "@chakra-ui/react";
 import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
   Tr,
   Th,
   Td,

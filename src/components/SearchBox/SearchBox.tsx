@@ -12,7 +12,7 @@ export default function SearchBox({ search, setSearch }: SearchBoxProps) {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         style={{
-          margin: "15px 5px 2px 0",
+          margin: "15px 5px 10px 0",
           borderRadius: "7px",
           padding: "2px",
           border: "1px solid #ccc",

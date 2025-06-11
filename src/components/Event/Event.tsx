@@ -161,6 +161,14 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
         Today's Events
       </Button> */}
 
+      {/* Sort by title */}
+      <SortByTitle
+        sortByTitle={sortByTitle}
+        setSortByTitle={setSortByTitle}
+        eventList={eventList}
+        setEventList={setEventList}
+      />
+
       {/* Sort by date */}
       <SortByDate
         sortByDate={sortByDate}
@@ -170,14 +178,6 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
       />
 
       <span style={{ marginLeft: "14px" }}></span>
-
-      {/* Sort by title */}
-      <SortByTitle
-        sortByTitle={sortByTitle}
-        setSortByTitle={setSortByTitle}
-        eventList={eventList}
-        setEventList={setEventList}
-      />
 
       <ErrorMessage error={error} setError={setError} />
 

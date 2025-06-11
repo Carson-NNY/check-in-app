@@ -2,20 +2,100 @@
 
 import { useEffect, useState } from "react";
 import { Highlight } from "../Highlight/Highlight";
-import Button from "../Button/Button";
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverArrow,
-  PopoverBody,
-  Portal,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
 } from "@chakra-ui/react";
+
+import {
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
+type CheckinModalProps = {
+  participant: any;
+  participants: any[];
+  index: number;
+  currentStatus: string;
+  handleUpdate: (id: string, status: string) => Promise<void>;
+
+  setParticipants: (participants: any[]) => void;
+};
+
+function CheckinModal({
+  participant,
+  participants,
+  index,
+  currentStatus,
+  handleUpdate,
+  setParticipants,
+}: CheckinModalProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  return (
+    <>
+      <Button
+        onClick={() => {
+          onOpen();
+        }}
+        disabled={currentStatus === "Attended"}
+      >
+        {currentStatus === "Attended" ? "Confirmed" : "Check-in"}
+      </Button>
+
+      <Modal isCentered isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay
+          bg="blackAlpha.300"
+          backdropFilter="blur(10px) hue-rotate(90deg)"
+        />
+        <ModalContent>
+          <ModalHeader>Confirm Check-In</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>
+              Are you sure you want to mark this participant as checked-in?
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              onClick={() => {
+                const updated = [...participants];
+                updated[index] = {
+                  ...participant,
+                  statusLabel: "Attended",
+                };
+                setParticipants(updated);
+                handleUpdate(participant.id, "Attended");
+                onClose();
+              }}
+            >
+              Confirm Attendance
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+}
+
 type Participant = {
   participantList: any[];
   setError: (error: string | null) => void;
   highlight: string;
 };
+
 export default function EventParticipantList({
   participantList,
   setError,
@@ -23,7 +103,6 @@ export default function EventParticipantList({
 }: Participant) {
   const [participants, setParticipants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setParticipants(participantList);
@@ -49,63 +128,52 @@ export default function EventParticipantList({
 
   return (
     <ul>
-      {participants.map((participant: any, index) => {
-        const currentStatus =
-          participant.statusLabel ?? participant["status_id:label"];
-
-        return (
-          <li key={index} style={{ marginBottom: 3 }}>
-            Name:
-            <Highlight
-              text={participant["contact_id.sort_name"]}
-              highlight={highlight}
-            />
-            — Registered: {participant.register_date} — Status: {currentStatus}{" "}
-            —{" "}
-            <Button
-              pattern="green"
-              onClick={() => {
-                const updated = [...participants];
-                updated[index] = {
-                  ...participant,
-                  statusLabel: "Attended",
-                };
-                setParticipants(updated);
-                handleUpdate(participant.id, "Attended");
-              }}
-              disabledStatus={currentStatus === "Attended" ? true : false}
-            >
-              {currentStatus === "Attended" ? "Confirmed" : "Check-in"}
-            </Button>
-            <Popover>
-              <PopoverTrigger>
-                <Button
-                  pattern="green"
-                  onClick={() => {
-                    const updated = [...participants];
-                    updated[index] = {
-                      ...participant,
-                      statusLabel: "Attended",
-                    };
-                    setParticipants(updated);
-                    handleUpdate(participant.id, "Attended");
-                  }}
-                >
-                  pppp
-                </Button>
-              </PopoverTrigger>
-              <Portal>
-                <PopoverContent>
-                  <PopoverArrow />
-                  <PopoverBody>
-                    This is a popover with the same width as the trigger button
-                  </PopoverBody>
-                </PopoverContent>
-              </Portal>
-            </Popover>
-          </li>
-        );
-      })}
+      <TableContainer>
+        <Table variant="simple" maxHeight="400px">
+          <TableCaption>Momath ~~~~~~</TableCaption>
+          <Thead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>register_date</Th>
+              <Th>currentStatus</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {participants.length === 0 ? (
+              <Tr>
+                <Td colSpan={3}>No participants found.</Td>
+              </Tr>
+            ) : (
+              participants.map((participant: any, index) => {
+                const currentStatus =
+                  participant.statusLabel ?? participant["status_id:label"];
+                return (
+                  <Tr key={index}>
+                    <Td maxW="200px" whiteSpace="normal" wordBreak="break-word">
+                      <Highlight
+                        text={participant["contact_id.sort_name"]}
+                        highlight={highlight}
+                      />
+                    </Td>
+                    <Td>{participant.register_date}</Td>
+                    <Td>
+                      {currentStatus} -
+                      <CheckinModal
+                        participant={participant}
+                        setParticipants={setParticipants}
+                        index={index}
+                        currentStatus={currentStatus}
+                        handleUpdate={handleUpdate}
+                        participants={participants}
+                      />
+                    </Td>
+                  </Tr>
+                );
+              })
+            )}
+          </Tbody>
+        </Table>
+      </TableContainer>
     </ul>
   );
 }
