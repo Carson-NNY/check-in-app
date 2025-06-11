@@ -1,3 +1,8 @@
+"use client";
+
+import { FaArrowDownShortWide, FaArrowUpShortWide } from "react-icons/fa6";
+import Button from "@/components/Button/Button";
+
 type SortOrder = "ASC" | "DESC" | null;
 
 type SortByDateProps = {
@@ -32,9 +37,16 @@ export default function SortByDate({
   };
 
   return (
-    <button onClick={handleSort}>
-      Sort by Date{" "}
-      {sortByDate === "ASC" ? "↑" : sortByDate === "DESC" ? "↓" : ""}
-    </button>
+    <Button pattern="blueOutline" onClick={handleSort}>
+      {" "}
+      Sort by Date &nbsp;
+      <span style={{ display: "inline-flex", alignItems: "center" }}>
+        {sortByDate === "ASC" ? (
+          <FaArrowUpShortWide />
+        ) : sortByDate === "DESC" ? (
+          <FaArrowDownShortWide />
+        ) : null}
+      </span>
+    </Button>
   );
 }

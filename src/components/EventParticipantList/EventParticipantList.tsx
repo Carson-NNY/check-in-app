@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { Highlight } from "../Highlight/Highlight";
-
+import Button from "../Button/Button";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverBody,
+  Portal,
+} from "@chakra-ui/react";
 type Participant = {
   participantList: any[];
   setError: (error: string | null) => void;
@@ -15,6 +23,7 @@ export default function EventParticipantList({
 }: Participant) {
   const [participants, setParticipants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setParticipants(participantList);
@@ -53,7 +62,8 @@ export default function EventParticipantList({
             />
             — Registered: {participant.register_date} — Status: {currentStatus}{" "}
             —{" "}
-            <button
+            <Button
+              pattern="green"
               onClick={() => {
                 const updated = [...participants];
                 updated[index] = {
@@ -63,10 +73,36 @@ export default function EventParticipantList({
                 setParticipants(updated);
                 handleUpdate(participant.id, "Attended");
               }}
-              disabled={currentStatus === "Attended"}
+              disabledStatus={currentStatus === "Attended" ? true : false}
             >
-              {currentStatus === "Attended" ? "Checked-in ✅" : "Check-in"}
-            </button>
+              {currentStatus === "Attended" ? "Confirmed" : "Check-in"}
+            </Button>
+            <Popover>
+              <PopoverTrigger>
+                <Button
+                  pattern="green"
+                  onClick={() => {
+                    const updated = [...participants];
+                    updated[index] = {
+                      ...participant,
+                      statusLabel: "Attended",
+                    };
+                    setParticipants(updated);
+                    handleUpdate(participant.id, "Attended");
+                  }}
+                >
+                  pppp
+                </Button>
+              </PopoverTrigger>
+              <Portal>
+                <PopoverContent>
+                  <PopoverArrow />
+                  <PopoverBody>
+                    This is a popover with the same width as the trigger button
+                  </PopoverBody>
+                </PopoverContent>
+              </Portal>
+            </Popover>
           </li>
         );
       })}

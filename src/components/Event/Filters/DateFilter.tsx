@@ -1,3 +1,5 @@
+import Button from "../../Button/Button";
+
 type EventFiltersProps = {
   year: string;
   month: string;
@@ -57,7 +59,9 @@ export default function DateFilters({
         ))}
       </select>
 
-      <button onClick={onSearch}>Search</button>
+      <Button pattern="grey" onClick={onSearch}>
+        Search Events
+      </Button>
     </div>
   );
 }

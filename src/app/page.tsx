@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
 import Events from "@/components/Event/Event";
 import { fetchEvents } from "@/services/events";
+import Image from "next/image";
 
 export default async function Home() {
   // Fetch events data on the server side
@@ -8,6 +9,16 @@ export default async function Home() {
 
   return (
     <div className={styles.page}>
+      <div className={styles.banner}>
+        <Image
+          src="/momath-logo.png"
+          alt="MoMath Logo"
+          width={400}
+          height={400}
+          // className={styles.logo}
+        />
+      </div>
+
       <Events events={events} />
     </div>
   );

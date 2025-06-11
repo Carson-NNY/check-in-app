@@ -10,6 +10,7 @@ import SortByDate from "./Sort/SortByDate";
 import SortByTitle from "./Sort/SortByTitle";
 import SearchBox from "../SearchBox/SearchBox";
 import useDebounce from "@/hooks/useDebounce";
+import Button from "../Button/Button"; // adjust path as needed
 
 export default function EventPage({ events = [] }: { events?: any[] }) {
   const [eventList, setEventList] = useState<any[]>([]);
@@ -153,13 +154,12 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
 
       <SearchBox search={search} setSearch={setSearch} />
 
-      {/* The button only to display today's events */}
-      <button
-        style={{ marginTop: "15px", marginBottom: "15px", marginRight: "15px" }}
-        onClick={handleSearchTodaysEvents}
-      >
+      <Button pattern="blue" onClick={handleSearchTodaysEvents}>
         Today's Events
-      </button>
+      </Button>
+      {/* <Button color="blue" pattern="solid" onClick={handleSearchTodaysEvents}>
+        Today's Events
+      </Button> */}
 
       {/* Sort by date */}
       <SortByDate

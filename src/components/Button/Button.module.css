@@ -1,0 +1,91 @@
+.blue {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 0.6rem;
+  border: none;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  margin: 0.3rem;
+}
+
+.blue:hover {
+  background-color: #2857db;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.blue:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.grey {
+  background-color: #767677;
+  color: white;
+  padding: 0.5rem 0.6rem;
+  border: none;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  margin: 0.3rem;
+}
+
+.grey:hover {
+  background-color: #666669;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.grey:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.blueOutline {
+  background-color: transparent;
+  display: inline-flex;
+  color: #2563eb; /* blue-600 */
+  padding: 0.5rem 1rem;
+  border: 1px solid #3570ee;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.blueOutline:hover {
+  background-color: #5789f3;
+  border: none;
+  color: white;
+}
+
+.green {
+  background-color: #10b981; /* green-500 */
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.green:hover {
+  background-color: #059669; /* green-600 */
+}
+
+.green:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+}
+
+.green:disabled {
+  background-color: #9b9d9d; /* green-200 */
+  color: #ffffff;
+  cursor: not-allowed;
+  box-shadow: none;
+}
