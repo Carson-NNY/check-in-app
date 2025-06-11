@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { updateParticipantStatusAttended } from "@/services/participants";
 
 export async function POST(
-  request: Request,
-  context: { params: { data: string[] } }
-) {
-  const { data: segments } = await context.params;
+  request: NextRequest,
+  { params }: { params: Promise<{ data: string[] }> }
+): Promise<NextResponse> {
+  const { data: segments } = await params;
+
   if (segments.length != 2) {
     return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
   }

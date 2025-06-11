@@ -1,12 +1,13 @@
 // src/app/api/events/[...date]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchEventsByDateRange } from "@/services/events";
 
 export async function GET(
-  request: Request,
-  context: { params: { date: string[] } }
-) {
-  const { date: segments } = await context.params;
+  request: NextRequest,
+  { params }: { params: Promise<{ date: string[] }> }
+): Promise<NextResponse> {
+  // await the params promise
+  const { date: segments } = await params;
 
   // If /api/events or /api/events/ (no segments)
   if (!segments || segments.length === 0) {

@@ -1,12 +1,11 @@
-// src/app/api/events/[...date]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchParticipantByEventId } from "@/services/participants";
 
 export async function GET(
-  request: Request,
-  context: { params: { event_id: string } }
-) {
-  const { event_id } = await context.params;
+  request: NextRequest,
+  { params }: { params: Promise<{ event_id: string }> }
+): Promise<NextResponse> {
+  const { event_id } = await params;
 
   if (!event_id) {
     return NextResponse.json(
@@ -17,7 +16,6 @@ export async function GET(
 
   try {
     const participants = await fetchParticipantByEventId(event_id);
-    // console.log("Fetched participants:", participants);
     return NextResponse.json(participants);
   } catch (error) {
     console.error("Error in /api/eventParticipants/[event_id]", error);

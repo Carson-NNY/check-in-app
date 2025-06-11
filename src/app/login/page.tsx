@@ -64,7 +64,7 @@ export default function LoginPage() {
                 placeholder="Enter your password"
               /> */}
               <HStack justify="center">
-                <PinInput mask value={pin} onChange={(val) => setPin(val)}>
+                <PinInput value={pin} mask onChange={(val) => setPin(val)}>
                   <PinInputField />
                   <PinInputField />
                   <PinInputField />
