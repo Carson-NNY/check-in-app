@@ -15,7 +15,6 @@ export default async function Home() {
           alt="MoMath Logo"
           width={400}
           height={400}
-          // className={styles.logo}
         />
       </div>
 

@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo } from "react";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import useDebounce from "@/hooks/useDebounce";
 import SearchBox from "@/components/SearchBox/SearchBox";
+import LogoutButton from "@/components/Button/LogoutButton";
 
 export default function EventParticipants({
   params,
@@ -73,6 +74,7 @@ export default function EventParticipants({
 
   return (
     <div className={styles.page}>
+      <LogoutButton />
       <h2>
         Event Participants{" "}
         <span style={{ fontSize: "18px" }}>(Event ID: {eventId})</span>

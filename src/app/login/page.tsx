@@ -1,40 +1,92 @@
+// src/app/login/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Flex,
+  Card,
+  CardHeader,
+  CardBody,
+  Heading,
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+  Text,
+  useColorModeValue,
+  HStack,
+} from "@chakra-ui/react";
+
+import { PinInput, PinInputField } from "@chakra-ui/pin-input";
 
 export default function LoginPage() {
-  const [password, setPassword] = useState("");
+  // const [password, setPassword] = useState("");
+  const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const bg = useColorModeValue("gray.50", "gray.700");
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ password: pin }),
     });
 
     if (res.ok) {
       router.push("/");
     } else {
-      setError("Incorrect password.");
+      setError("Incorrect PIN.");
     }
   }
 
+  useEffect(() => {
+    // Clear error message on component mount
+    setError("");
+  }, [pin]);
+
   return (
-    <form onSubmit={handleLogin} style={{ padding: "2rem" }}>
-      <h2>Enter Password</h2>
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-      />
-      <button type="submit">Login</button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </form>
+    <Flex align="center" justify="center" minH="100vh" bg={bg} px={4}>
+      <Card w="full" maxW="md" shadow="lg">
+        <CardHeader textAlign="center">
+          <Heading size="lg">Please Log In</Heading>
+        </CardHeader>
+        <CardBody>
+          <form onSubmit={handleLogin}>
+            <FormControl id="password" isRequired>
+              <FormLabel>Password</FormLabel>
+              {/* <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+              /> */}
+              <HStack justify="center">
+                <PinInput mask value={pin} onChange={(val) => setPin(val)}>
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                  <PinInputField />
+                </PinInput>
+              </HStack>
+            </FormControl>
+
+            {error && (
+              <Text color="red.500" mt={2} textAlign="center">
+                {error}
+              </Text>
+            )}
+
+            <Button type="submit" mt={4} colorScheme="blue" w="full">
+              Login
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
+    </Flex>
   );
 }

@@ -10,7 +10,8 @@ import SortByDate from "./Sort/SortByDate";
 import SortByTitle from "./Sort/SortByTitle";
 import SearchBox from "../SearchBox/SearchBox";
 import useDebounce from "@/hooks/useDebounce";
-import Button from "../Button/Button"; // adjust path as needed
+import Button from "../Button/Button";
+import LogoutButton from "@/components/Button/LogoutButton";
 
 export default function EventPage({ events = [] }: { events?: any[] }) {
   const [eventList, setEventList] = useState<any[]>([]);
@@ -87,6 +88,7 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
     }
   };
 
+  // Fetch today's events by default when the component mounts
   const handleSearchTodaysEvents = async () => {
     const today = new Date();
     const year = today.getFullYear().toString();
@@ -141,6 +143,7 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
 
   return (
     <div className={styles.page}>
+      <LogoutButton />
       {/* general date filter for display chosen year/month/day's events */}
       <DateFilters
         year={year}
@@ -157,9 +160,6 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
       <Button pattern="blue" onClick={handleSearchTodaysEvents}>
         Today's Events
       </Button>
-      {/* <Button color="blue" pattern="solid" onClick={handleSearchTodaysEvents}>
-        Today's Events
-      </Button> */}
 
       {/* Sort by title */}
       <SortByTitle
@@ -181,6 +181,7 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
 
       <ErrorMessage error={error} setError={setError} />
 
+      {/* Main content area */}
       <main className={styles.main}>
         <EventList events={displayedEvents} highlight={search} />
       </main>
