@@ -1,5 +1,8 @@
 import { useRouter } from "next/navigation";
 import { Highlight } from "../Highlight/Highlight";
+import SortByTitle from "./Sort/SortByTitle";
+import SortByDate from "./Sort/SortByDate";
+
 import {
   Table,
   Thead,
@@ -11,12 +14,28 @@ import {
   TableContainer,
 } from "@chakra-ui/react";
 
+type sortByType = "ASC" | "DESC" | null;
 type EventListProps = {
   events: any[];
   highlight: string;
+  eventList: any[];
+  setEventList: (events: any[]) => void;
+  sortByTitle: sortByType;
+  setSortByTitle: (sortBy: sortByType) => void;
+  sortByDate: sortByType;
+  setSortByDate: (sortBy: sortByType) => void;
 };
 
-export default function EventList({ events, highlight }: EventListProps) {
+export default function EventList({
+  events,
+  highlight,
+  eventList,
+  setEventList,
+  sortByTitle,
+  setSortByTitle,
+  sortByDate,
+  setSortByDate,
+}: EventListProps) {
   const router = useRouter();
 
   return (
@@ -31,8 +50,23 @@ export default function EventList({ events, highlight }: EventListProps) {
             <Thead>
               <Tr>
                 <Th>event_id</Th>
-                <Th>title</Th>
-                <Th>start_date</Th>
+                <Th>
+                  {/* Sort by title */}
+                  <SortByTitle
+                    sortByTitle={sortByTitle}
+                    setSortByTitle={setSortByTitle}
+                    eventList={eventList}
+                    setEventList={setEventList}
+                  />
+                </Th>
+                <Th>
+                  <SortByDate
+                    sortByDate={sortByDate}
+                    setSortByDate={setSortByDate}
+                    eventList={eventList}
+                    setEventList={setEventList}
+                  />
+                </Th>
               </Tr>
             </Thead>
             <Tbody>

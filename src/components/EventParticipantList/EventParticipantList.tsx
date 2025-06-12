@@ -25,6 +25,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+
 type CheckinModalProps = {
   participant: any;
   participants: any[];

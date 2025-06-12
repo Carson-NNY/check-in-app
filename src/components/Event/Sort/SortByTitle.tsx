@@ -1,5 +1,6 @@
 import { FaArrowDownShortWide, FaArrowUpShortWide } from "react-icons/fa6";
 import Button from "@/components/Button/Button";
+import { TbArrowsSort } from "react-icons/tb";
 
 type SortByTitle = "ASC" | "DESC" | null;
 
@@ -40,14 +41,14 @@ export default function SortByTitle({
   };
   return (
     <Button pattern="blueOutline" onClick={handleSort}>
-      Sort by Title &nbsp;
+      Title &nbsp;
       <span style={{ display: "inline-flex", alignItems: "center" }}>
         {sortByTitle === "ASC" ? (
           <FaArrowUpShortWide />
         ) : sortByTitle === "DESC" ? (
           <FaArrowDownShortWide />
         ) : (
-          ""
+          <TbArrowsSort />
         )}
       </span>
     </Button>

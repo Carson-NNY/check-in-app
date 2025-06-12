@@ -2,6 +2,7 @@
 
 import { FaArrowDownShortWide, FaArrowUpShortWide } from "react-icons/fa6";
 import Button from "@/components/Button/Button";
+import { TbArrowsSort } from "react-icons/tb";
 
 type SortOrder = "ASC" | "DESC" | null;
 
@@ -39,13 +40,15 @@ export default function SortByDate({
   return (
     <Button pattern="blueOutline" onClick={handleSort}>
       {" "}
-      Sort by Date &nbsp;
+      Date&nbsp;
       <span style={{ display: "inline-flex", alignItems: "center" }}>
         {sortByDate === "ASC" ? (
           <FaArrowUpShortWide />
         ) : sortByDate === "DESC" ? (
           <FaArrowDownShortWide />
-        ) : null}
+        ) : (
+          <TbArrowsSort />
+        )}
       </span>
     </Button>
   );

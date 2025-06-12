@@ -3,15 +3,14 @@
 import { useState, useEffect, useMemo } from "react";
 import DateFilters from "@/components/Event/Filters/DateFilter";
 import EventList from "./EventList";
-import { fetchEventsByDate } from "@/hooks/useEvents";
 import styles from "./Event.module.css";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
-import SortByDate from "./Sort/SortByDate";
-import SortByTitle from "./Sort/SortByTitle";
 import SearchBox from "../SearchBox/SearchBox";
 import useDebounce from "@/hooks/useDebounce";
 import Button from "../Button/Button";
 import LogoutButton from "@/components/Button/LogoutButton";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 export default function EventPage({ events = [] }: { events?: any[] }) {
   const [eventList, setEventList] = useState<any[]>([]);
@@ -24,6 +23,7 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
   const [sortByTitle, _setSortByTitle] = useState<"ASC" | "DESC" | null>(null);
   const [search, setSearch] = useState<string>("");
   const deferredSearch = useDebounce(search, 500);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const displayedEvents = useMemo(() => {
     if (deferredSearch.trim() === "") return eventList;
@@ -72,6 +72,36 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
   //   const newUrl = `${window.location.pathname}?${query.toString()}`;
   //   window.history.replaceState(null, "", newUrl);
   // };
+
+  const fetchEventsByDate = async (
+    year: string,
+    month?: string,
+    day?: string
+  ) => {
+    setIsLoading(true);
+
+    try {
+      if (!year) return [];
+      let path = `/api/events/${year}`;
+      if (month) path += `/${month}`;
+      if (day) path += `/${day}`;
+
+      // make the API call from the server side
+      const response = await fetch(path);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Status: ${response.status}}, {cause: ${errorText}}`);
+      }
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      setError(`handleDateSearch() failed — ${error}`);
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleDateSearch = async () => {
     // Update the URL with the selected year/month/day so when page is refreshed, the same events are preserved
@@ -161,29 +191,24 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
         Today's Events
       </Button>
 
-      {/* Sort by title */}
-      <SortByTitle
-        sortByTitle={sortByTitle}
-        setSortByTitle={setSortByTitle}
-        eventList={eventList}
-        setEventList={setEventList}
-      />
-
-      {/* Sort by date */}
-      <SortByDate
-        sortByDate={sortByDate}
-        setSortByDate={setSortByDate}
-        eventList={eventList}
-        setEventList={setEventList}
-      />
-
-      <span style={{ marginLeft: "14px" }}></span>
-
       <ErrorMessage error={error} setError={setError} />
 
       {/* Main content area */}
       <main className={styles.main}>
-        <EventList events={displayedEvents} highlight={search} />
+        {isLoading ? (
+          <Skeleton count={20} height={30} duration={0.7} borderRadius={10} />
+        ) : (
+          <EventList
+            events={displayedEvents}
+            highlight={search}
+            sortByTitle={sortByTitle}
+            setSortByTitle={setSortByTitle}
+            sortByDate={sortByDate}
+            setSortByDate={setSortByDate}
+            eventList={eventList}
+            setEventList={setEventList}
+          />
+        )}
       </main>
     </div>
   );

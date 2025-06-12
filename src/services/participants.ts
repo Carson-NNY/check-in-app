@@ -8,7 +8,7 @@ const HEADER = {
   "X-Requested-With": "XMLHttpRequest",
 };
 
-const API_KEY = "ohblAgjeXw7tEVrO0pGZSoi6bxyfb";
+const API_KEY = process.env.CIVICRM_API_KEY || "";
 
 // not currently used, but could be useful for other features
 export async function fetchAllParticipants() {

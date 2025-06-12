@@ -3,7 +3,7 @@ const HEADER = {
   "Content-Type": "application/x-www-form-urlencoded",
   "X-Requested-With": "XMLHttpRequest",
 };
-const API_KEY = "ohblAgjeXw7tEVrO0pGZSoi6bxyfb";
+const API_KEY = process.env.CIVICRM_API_KEY || "";
 
 export async function fetchEvents() {
   try {
