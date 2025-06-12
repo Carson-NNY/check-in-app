@@ -1,8 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Table of Contents
+
+- [Technologies](#technologies)
+- [Getting Started](#getting-started)
+- [Directory Structure](#directory-structure)
+- [App Structure Explained](#app-structure-explained)
+
+  - [`/app`](#app)
+  - [`/components`](#components)
+  - [`/hooks`](#hooks)
+  - [`/services`](#services)
+  - [`middleware.ts`](#middlewarets)
+
+- [API Routes](#api-routes)
+
+---
+
+## Technologies
+
+- **Next.js 13** (App Router)
+- **React** (17+)
+- **Chakra UI** for UI components and spinners
+- **TypeScript** for static typing
+
+---
 
 ## Getting Started
 
-First, run the development server:
+1. **Clone the repo**
+
+   ```bash
+   git clone <repo-url>
+   cd <project-directory>
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   # or
+   yarn install
+
+   # the packages required:
+   npm install next react react-dom
+   npm install @chakra-ui/react @emotion/react @emotion/styled framer-motion
+   npm install react-loading-skeleton
+
+   ```
+
+3. **Run the server**
 
 ```bash
 npm run dev
@@ -12,25 +57,115 @@ yarn dev
 pnpm dev
 # or
 bun dev
+
+# when everything is in place, run it on production mode
+# first build it:
+npm run build
+# then start the server:
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Directory Structure
 
-## Learn More
+```text
+/src
+├─ middleware.ts
+├─ app
+│  ├─ globals.css
+│  ├─ layout.tsx
+│  ├─ loading.tsx
+│  ├─ page.tsx
+│  ├─ page.module.css
+│  ├─ event_participants
+│  │  └─ [id]
+│  │     └─ page.tsx
+│  └─ api
+│     ├─ auth
+│     │  ├─ login
+│     │  │  └─ route.ts
+│     │  └─ logout
+│     │     └─ route.ts
+│     ├─ events
+│     │  └─ [...date]
+│     ├─ statusUpdate
+│     │  └─ [...data]
+│     └─ eventParticipants
+│        └─ [event_id]
+│           └─ route.ts
+├─ components
+│  ├─ Button
+│  ├─ Highlight
+│  ├─ ErrorMessage
+│  ├─ EventParticipantList
+│  ├─ Event
+│  │  ├─ Filters
+│  │  └─ Sort
+│  └─ SearchBox
+├─ hooks
+│  └─ useDebounce.ts
+└─ services
+   ├─ events.ts
+   └─ participants.ts
+```
 
-To learn more about Next.js, take a look at the following resources:
+Each folder groups related code:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **`app/`**: Next.js App Router entrypoint, global styles, layouts, and dynamic/server components.
+- **`components/`**: Reusable UI pieces (buttons, lists, filters).
+- **`hooks/`**: Custom React hooks for logic reuse (debouncing inputs).
+- **`services/`**: Encapsulated fetch logic for API calls.
+- **`middleware.ts`**: Protects routes by checking authentication cookie and redirects unauthenticated users.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## App Structure Explained
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### `/app`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **`layout.tsx`**: Wraps all pages with shared UI (header, footer).
+- **`page.tsx`**: The home page component—sets up filters, search, and lists events.
+- **`loading.tsx`**: Displays a full-screen spinner while the app router loads.
+- **`api/`**: Serverless functions handling authentication (`/login`, `/logout`), event CRUD (`/events/[...date]`), and check-in status updates (`/statusUpdate/[...data]`).
+- **`event_participants/[id]/page.tsx`**: Dynamic route for individual event participant details.
+
+### `/components`
+
+Reusable UI building blocks:
+
+- **`Button`**: Styled button with optional variants (e.g., logout button).
+- **`Highlight`**: Emphasizes matching search terms in event titles.
+- **`ErrorMessage`**: Centralized error display component.
+- **`EventParticipantList`**: Renders participant lists with update controls.
+- **`Event`**: Card and list views for events, with nested `Filters` and `Sort` subcomponents.
+- **`SearchBox`**: Debounced input field for text filtering.
+
+### `/hooks`
+
+- **`useDebounce`**: Custom hook to delay updates of rapidly changing values (e.g., search input).
+
+### `/services`
+
+- **`events.ts`**: Server-agnostic functions to fetch event data.
+- **`participants.ts`**: API calls for fetching and updating participant data.
+
+### `middleware.ts`
+
+Enforces authentication: intercepts all requests, checks for a valid session cookie, and redirects to `/login` if missing.
+
+---
+
+## API Routes
+
+| Method | Path                                | Description                         |
+| ------ | ----------------------------------- | ----------------------------------- |
+| GET    | `/api/events/[year]/[month]/[day]`  | Fetch events by date                |
+| POST   | `/api/statusUpdate/[id]/[status]`   | Update check-in status for a user   |
+| GET    | `/api/eventParticipants/[event_id]` | Get participants for a given event  |
+| POST   | `/api/auth/login`                   | Authenticate and set session cookie |
+| POST   | `/api/auth/logout`                  | Destroy session and clear cookie    |
+
+---
