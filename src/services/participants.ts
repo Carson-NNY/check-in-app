@@ -1,7 +1,11 @@
+import { fetchContactByName, createContact } from "./contacts";
+
 const PARTICIPANT_GET_URL =
   "https://sandbox.momath.org/civicrm/ajax/api4/Participant/get";
 const PARTICIPANT_UPDATE_URL =
   "https://sandbox.momath.org/civicrm/ajax/api4/Participant/update";
+const PARTICIPANT_CREATE_URL =
+  "https://sandbox.momath.org/civicrm/ajax/api4/Participant/create";
 
 const HEADER = {
   "Content-Type": "application/x-www-form-urlencoded",
@@ -112,6 +116,59 @@ export async function updateParticipantStatusAttended(
     return payload;
   } catch (error) {
     console.error("Error updating participant status:", error);
+    throw error;
+  }
+}
+
+export async function createParticipant(data: {
+  eventId: string;
+  status: string;
+  lastName: string;
+  firstName: string;
+  middleName: string;
+  contactType: string;
+  source: string;
+}) {
+  // first check if the contact already exists
+  try {
+    let contact = await fetchContactByName(data.firstName, data.lastName);
+    if (!contact) {
+      //   create a new contact
+      console.log("Contact not found, creating a new one...");
+      try {
+        contact = await createContact(data);
+        console.log("Contact created with ID:", contact.id);
+      } catch (error) {
+        console.error("Error creating a Contact:", error);
+        throw error;
+      }
+    }
+
+    // create a new participant
+    const res = await fetch(PARTICIPANT_CREATE_URL, {
+      method: "POST",
+      headers: HEADER,
+      body: new URLSearchParams({
+        api_key: API_KEY,
+        params: JSON.stringify({
+          values: {
+            event_id: data.eventId,
+            contact_id: contact.id,
+            "status_id:name": data.status,
+            source: data.source,
+          },
+        }),
+      }),
+    });
+    if (!res.ok) {
+      throw new Error("Failed to create participant", {
+        cause: res.statusText,
+      });
+    }
+    const payload = await res.json();
+    return payload.values[0];
+  } catch (error) {
+    console.error("Error fetching contact by name:", error);
     throw error;
   }
 }

@@ -110,6 +110,7 @@ export default function EventParticipants({
             participantList={displayedParticipants}
             setError={setError}
             highlight={search}
+            eventId={eventId || ""}
           />
           <ErrorMessage error={error} setError={setError} />
         </>

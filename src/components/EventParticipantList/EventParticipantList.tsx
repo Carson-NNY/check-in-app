@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { HighlightComponent } from "../Highlight/Highlight";
+import CheckinModal from "../CheckinModal";
+import ParticipantDrawer from "../ParticipantDrawer";
+
 import {
   Table,
   Thead,
@@ -13,25 +16,23 @@ import {
   TableContainer,
 } from "@chakra-ui/react";
 
-import CheckinModal from "../CheckinModal";
-
 type Participant = {
   participantList: any[];
   setError: (error: string | null) => void;
   highlight: string;
+  eventId: string;
 };
 
 export default function EventParticipantList({
   participantList,
   setError,
   highlight,
+  eventId,
 }: Participant) {
   const [participants, setParticipants] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setParticipants(participantList);
-    setLoading(false);
   }, [participantList]);
 
   const handleUpdate = async (id: string, status: string) => {
@@ -49,13 +50,13 @@ export default function EventParticipantList({
     }
   };
 
-  if (loading) return <p>Loading participants…</p>;
-
   return (
     <ul>
       <TableContainer>
         <Table variant="simple" maxHeight="400px">
-          <TableCaption>Momath ~~~~~~</TableCaption>
+          <TableCaption>
+            <ParticipantDrawer eventId={eventId} />
+          </TableCaption>
           <Thead>
             <Tr>
               <Th>Name</Th>
@@ -79,6 +80,10 @@ export default function EventParticipantList({
                         text={participant["contact_id.sort_name"]}
                         highlight={highlight}
                       />
+                      {/* <HighlightComponent
+                        text={participant.id.toString()}
+                        highlight={highlight}
+                      /> */}
                     </Td>
                     <Td>{participant.register_date}</Td>
                     <Td>
