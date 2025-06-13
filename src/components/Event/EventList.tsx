@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { Highlight } from "../Highlight/Highlight";
+import { HighlightComponent } from "../Highlight/Highlight";
 import SortByTitle from "./Sort/SortByTitle";
 import SortByDate from "./Sort/SortByDate";
 
@@ -79,7 +79,10 @@ export default function EventList({
                 >
                   <Td>{event.id.toString()}</Td>
                   <Td maxW="300px" whiteSpace="normal" wordBreak="break-word">
-                    <Highlight text={event.title} highlight={highlight} />
+                    <HighlightComponent
+                      text={event.title}
+                      highlight={highlight}
+                    />
                   </Td>
                   <Td>{event.start_date}</Td>
                 </Tr>

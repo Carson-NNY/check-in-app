@@ -1,3 +1,5 @@
+import { Input } from "@chakra-ui/react";
+
 type SearchBoxProps = {
   search: string;
   setSearch: (value: string) => void;
@@ -6,17 +8,11 @@ type SearchBoxProps = {
 export default function SearchBox({ search, setSearch }: SearchBoxProps) {
   return (
     <div>
-      <input
+      <Input
         type="text"
         placeholder="Search by title"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{
-          margin: "15px 5px 10px 0",
-          borderRadius: "7px",
-          padding: "2px",
-          border: "1px solid #ccc",
-        }}
       />
     </div>
   );

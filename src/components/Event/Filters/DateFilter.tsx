@@ -1,3 +1,4 @@
+import { Flex, Select } from "@chakra-ui/react";
 import Button from "../../Button/Button";
 
 type EventFiltersProps = {
@@ -22,46 +23,57 @@ export default function DateFilters({
   const currentYear = new Date().getFullYear();
 
   return (
-    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-      <select value={year} onChange={(e) => onYearChange(e.target.value)}>
-        <option value="">Year</option>
-        {/* currently display 30 years: starting from 2015 to 2044 */}
+    <Flex gap={2} align="center">
+      <Select
+        placeholder="Year"
+        value={year}
+        onChange={(e) => onYearChange(e.target.value)}
+        width="100px"
+      >
         {Array.from({ length: 30 }, (_, i) => currentYear - 10 + i).map((y) => (
           <option key={y} value={y}>
             {y}
           </option>
         ))}
-      </select>
+      </Select>
 
-      <select
+      <Select
+        placeholder="Month"
         value={month}
         onChange={(e) => onMonthChange(e.target.value)}
-        disabled={!year}
+        isDisabled={!year}
+        width="80px"
       >
-        <option value="">Month</option>
-        {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-          <option key={m} value={String(m).padStart(2, "0")}>
-            {String(m).padStart(2, "0")}
-          </option>
-        ))}
-      </select>
+        {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
+          const val = String(m).padStart(2, "0");
+          return (
+            <option key={m} value={val}>
+              {val}
+            </option>
+          );
+        })}
+      </Select>
 
-      <select
+      <Select
+        placeholder="Day"
         value={day}
         onChange={(e) => onDayChange(e.target.value)}
-        disabled={!year || !month}
+        isDisabled={!year || !month}
+        width="80px"
       >
-        <option value="">Day</option>
-        {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-          <option key={d} value={String(d).padStart(2, "0")}>
-            {String(d).padStart(2, "0")}
-          </option>
-        ))}
-      </select>
+        {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => {
+          const val = String(d).padStart(2, "0");
+          return (
+            <option key={d} value={val}>
+              {val}
+            </option>
+          );
+        })}
+      </Select>
 
       <Button pattern="grey" onClick={onSearch}>
         Search Events
       </Button>
-    </div>
+    </Flex>
   );
 }

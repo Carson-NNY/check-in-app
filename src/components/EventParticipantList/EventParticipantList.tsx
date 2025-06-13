@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Highlight } from "../Highlight/Highlight";
+import { HighlightComponent } from "../Highlight/Highlight";
 import {
   Table,
   Thead,
@@ -151,7 +151,7 @@ export default function EventParticipantList({
                 return (
                   <Tr key={index}>
                     <Td maxW="200px" whiteSpace="normal" wordBreak="break-word">
-                      <Highlight
+                      <HighlightComponent
                         text={participant["contact_id.sort_name"]}
                         highlight={highlight}
                       />

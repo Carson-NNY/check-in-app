@@ -1,4 +1,12 @@
-import style from "./ErrorMessage.module.css";
+import {
+  Alert,
+  AlertIcon,
+  AlertDescription,
+  useDisclosure,
+  CloseButton,
+  Box,
+} from "@chakra-ui/react";
+import {} from "@chakra-ui/react";
 
 type ErrorMessageProps = {
   error: string | null;
@@ -6,23 +14,30 @@ type ErrorMessageProps = {
 };
 
 export default function ErrorMessage({ error, setError }: ErrorMessageProps) {
-  return (
-    <>
-      {error && (
-        <div className={style.errorMessage}>
-          {error}{" "}
-          <button
-            style={{
-              marginTop: "15px",
-              marginBottom: "15px",
-              marginLeft: "10px",
-            }}
-            onClick={() => setError(null)}
-          >
-            Reset Error
-          </button>
-        </div>
-      )}
-    </>
+  const { onClose } = useDisclosure({ defaultIsOpen: false });
+
+  const handleClose = () => {
+    setError(null);
+    onClose();
+  };
+
+  return error ? (
+    <Alert status="error" variant="left-accent">
+      <AlertIcon />
+      <Box>
+        <AlertDescription>
+          There was an error processing your request: {error}
+        </AlertDescription>
+      </Box>
+      <CloseButton
+        alignSelf="flex-start"
+        position="relative"
+        right={-1}
+        top={-1}
+        onClick={handleClose}
+      />
+    </Alert>
+  ) : (
+    <></>
   );
 }

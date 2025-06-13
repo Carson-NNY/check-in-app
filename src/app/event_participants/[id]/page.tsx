@@ -95,21 +95,24 @@ export default function EventParticipants({
           height={400}
         />
       </div>
+
       <h2>
         Event Participants{" "}
         <span style={{ fontSize: "18px" }}>(Event ID: {eventId})</span>
       </h2>
       <SearchBox search={search} setSearch={setSearch} />
-      <ErrorMessage error={error} setError={setError} />
 
       {isLoading ? (
         <Skeleton count={20} height={30} duration={0.7} borderRadius={10} />
       ) : (
-        <EventParticipantList
-          participantList={displayedParticipants}
-          setError={setError}
-          highlight={search}
-        />
+        <>
+          <EventParticipantList
+            participantList={displayedParticipants}
+            setError={setError}
+            highlight={search}
+          />
+          <ErrorMessage error={error} setError={setError} />
+        </>
       )}
     </div>
   );

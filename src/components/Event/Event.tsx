@@ -187,27 +187,30 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
 
       <SearchBox search={search} setSearch={setSearch} />
 
+      <div style={{ marginTop: "10px" }}></div>
       <Button pattern="blue" onClick={handleSearchTodaysEvents}>
         Today's Events
       </Button>
-
-      <ErrorMessage error={error} setError={setError} />
 
       {/* Main content area */}
       <main className={styles.main}>
         {isLoading ? (
           <Skeleton count={20} height={30} duration={0.7} borderRadius={10} />
         ) : (
-          <EventList
-            events={displayedEvents}
-            highlight={search}
-            sortByTitle={sortByTitle}
-            setSortByTitle={setSortByTitle}
-            sortByDate={sortByDate}
-            setSortByDate={setSortByDate}
-            eventList={eventList}
-            setEventList={setEventList}
-          />
+          <>
+            {" "}
+            <EventList
+              events={displayedEvents}
+              highlight={search}
+              sortByTitle={sortByTitle}
+              setSortByTitle={setSortByTitle}
+              sortByDate={sortByDate}
+              setSortByDate={setSortByDate}
+              eventList={eventList}
+              setEventList={setEventList}
+            />
+            <ErrorMessage error={error} setError={setError} />
+          </>
         )}
       </main>
     </div>

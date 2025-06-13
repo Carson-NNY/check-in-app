@@ -19,7 +19,7 @@
 
 - **Next.js 13** (App Router)
 - **React** (17+)
-- **Chakra UI** for UI components and spinners
+- **Chakra UI** for UI components
 - **TypeScript** for static typing
 
 ---
@@ -41,7 +41,6 @@
    yarn install
 
    # the packages required:
-   npm install next react react-dom
    npm install @chakra-ui/react @emotion/react @emotion/styled framer-motion
    npm install react-loading-skeleton
 
