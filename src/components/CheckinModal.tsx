@@ -16,7 +16,11 @@ type CheckinModalProps = {
   participants: any[];
   index: number;
   currentStatus: string;
-  handleUpdate: (id: string, status: string) => Promise<void>;
+  handleUpdate: (
+    id: string,
+    status: string,
+    sort_name: string
+  ) => Promise<void>;
 
   setParticipants: (participants: any[]) => void;
 };
@@ -63,7 +67,11 @@ export default function CheckinModal({
                   statusLabel: "Attended",
                 };
                 setParticipants(updated);
-                handleUpdate(participant.id, "Attended");
+                handleUpdate(
+                  participant.id,
+                  "Attended",
+                  participant["contact_id.sort_name"]
+                );
                 onClose();
               }}
             >

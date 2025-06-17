@@ -9,6 +9,7 @@ import SearchBox from "../SearchBox/SearchBox";
 import useDebounce from "@/hooks/useDebounce";
 import Button from "../Button/Button";
 import LogoutButton from "@/components/Button/LogoutButton";
+import { Flex } from "@chakra-ui/react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -174,23 +175,27 @@ export default function EventPage({ events = [] }: { events?: any[] }) {
   return (
     <div className={styles.page}>
       <LogoutButton />
-      {/* general date filter for display chosen year/month/day's events */}
-      <DateFilters
-        year={year}
-        month={month}
-        day={day}
-        onYearChange={handleYearChange}
-        onMonthChange={handleMonthChange}
-        onDayChange={handleDayChange}
-        onSearch={handleDateSearch}
-      />
+
+      <Flex width="100%" justify="space-between" align="center">
+        {/* general date filter for display chosen year/month/day's events */}
+        <DateFilters
+          year={year}
+          month={month}
+          day={day}
+          onYearChange={handleYearChange}
+          onMonthChange={handleMonthChange}
+          onDayChange={handleDayChange}
+          onSearch={handleDateSearch}
+        />
+
+        <Button pattern="teal" onClick={handleSearchTodaysEvents}>
+          Today's Events
+        </Button>
+      </Flex>
 
       <SearchBox search={search} setSearch={setSearch} />
 
       <div style={{ marginTop: "10px" }}></div>
-      <Button pattern="blue" onClick={handleSearchTodaysEvents}>
-        Today's Events
-      </Button>
 
       {/* Main content area */}
       <main className={styles.main}>

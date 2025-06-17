@@ -148,7 +148,7 @@ export async function updateParticipantStatusAttended(
       });
     }
     const payload = await res.json();
-    console.log("Updated participant status successfully:");
+    // console.log("Updated participant status successfully:", payload);
     return payload;
   } catch (error) {
     console.error("Error updating participant status:", error);
@@ -203,14 +203,10 @@ export async function createParticipant(data: {
       });
     }
     const payload = await res.json();
-    // console.log("!1111111L", payload.values[0]);
     if (payload.values.length === 0) {
       console.warn("No participant created.");
       return null;
     }
-
-    // return payload.values[0];
-
     // get the participant by ID with the fields we need. i.e. "status_id:label", "contact_id.sort_name".  (can not do this during creation)
     const participant = await fetchParticipantById(payload.values[0].id);
     return participant;

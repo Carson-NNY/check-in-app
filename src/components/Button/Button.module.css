@@ -1,5 +1,5 @@
-.blue {
-  background-color: #1b70e9;
+.blue,
+.teal {
   color: white;
   padding: 0.5rem 0.6rem;
   border: none;
@@ -9,6 +9,10 @@
   font-weight: 500;
   transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
   margin: 0.3rem;
+}
+
+.blue {
+  background-color: #1b70e9;
 }
 
 .blue:hover {
@@ -21,8 +25,22 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.teal {
+  background-color: #0e998d; /* teal-500 */
+}
+
+.teal:hover {
+  background-color: #0e887e;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.teal:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .grey {
-  background-color: #767677;
+  background-color: #99999a;
   color: white;
   padding: 0.5rem 0.6rem;
   border: none;
@@ -35,7 +53,7 @@
 }
 
 .grey:hover {
-  background-color: #666669;
+  background-color: #727274;
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
 }
 
@@ -54,6 +72,7 @@
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  margin: 0.3rem;
 }
 
 .blueOutline:hover {

@@ -19,41 +19,69 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
+import { useToast } from "@chakra-ui/react";
 
 type ParticipantDrawerProps = {
   eventId: string;
-  participants: any[];
   setParticipants: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
 export default function ParticipantDrawer({
   eventId,
-  participants,
   setParticipants,
 }: ParticipantDrawerProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const firstField = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
 
-    const form = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const payload = {
+      eventId,
+      status: "Attended",
+      lastName: form.lastName.value,
+      firstName: form.firstName.value,
+      middleName: form.middleName.value,
+      contactType: form.contactType.value,
+      source: form.source.value,
+    };
+
     const res = await fetch("/api/newParticipant", {
       method: "POST",
-      body: form,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
     if (res.ok) {
       const newParticipant = await res.json();
       console.log("New participant added:", newParticipant);
-
       setParticipants((prev) => [...prev, newParticipant]);
+      toast({
+        title: "Success!",
+        description: `${newParticipant["contact_id.sort_name"]} has been added successfully.`,
+        status: "success",
+        duration: 3000, //  disappears after 3s
+        isClosable: true,
+        position: "top",
+      });
       onClose();
     } else {
       const err = await res.json();
       console.error("Error:", err);
+      toast({
+        title: "Error!",
+        description: `Failed to add participant: ${
+          err.error || "Unknown error"
+        }`,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
     }
 
     setLoading(false);
@@ -79,9 +107,6 @@ export default function ParticipantDrawer({
 
           <DrawerBody>
             <form id="participant-form" onSubmit={handleSubmit}>
-              <Input type="hidden" name="eventId" value={eventId || ""} />
-              <Input type="hidden" name="status" value="Attended" />
-
               <Stack spacing="20px">
                 <Box>
                   <FormLabel htmlFor="lastName">Last Name *</FormLabel>

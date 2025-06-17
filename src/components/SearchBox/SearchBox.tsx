@@ -1,4 +1,4 @@
-import { Input } from "@chakra-ui/react";
+import { Input, Flex } from "@chakra-ui/react";
 
 type SearchBoxProps = {
   search: string;
@@ -7,13 +7,14 @@ type SearchBoxProps = {
 
 export default function SearchBox({ search, setSearch }: SearchBoxProps) {
   return (
-    <div>
+    <Flex align="center" gap={2} margin={2}>
+      Search:
       <Input
         type="text"
-        placeholder="Search by title"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
+        width="320px"
       />
-    </div>
+    </Flex>
   );
 }

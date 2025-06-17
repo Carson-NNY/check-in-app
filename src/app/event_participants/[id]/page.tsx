@@ -81,8 +81,8 @@ export default function EventParticipants({
 
   return (
     <div className={styles.page}>
-      <Box position="fixed" top={1} left={1} zIndex="overlay">
-        <Button pattern="grey" onClick={() => router.back()}>
+      <Box position="fixed" top={4} left={1} zIndex="overlay">
+        <Button pattern="blueOutline" onClick={() => router.back()}>
           ← Back
         </Button>
       </Box>

@@ -1,5 +1,6 @@
 import { Flex, Select } from "@chakra-ui/react";
 import Button from "../../Button/Button";
+import { BsSearch } from "react-icons/bs";
 
 type EventFiltersProps = {
   year: string;
@@ -71,8 +72,11 @@ export default function DateFilters({
         })}
       </Select>
 
-      <Button pattern="grey" onClick={onSearch}>
-        Search Events
+      <Button pattern="teal" onClick={onSearch}>
+        <Flex align="center" gap={2}>
+          Search
+          <BsSearch />
+        </Flex>
       </Button>
     </Flex>
   );
