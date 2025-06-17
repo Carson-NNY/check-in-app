@@ -5,10 +5,12 @@
 - [Directory Structure](#directory-structure)
 - [App Structure Explained](#app-structure-explained)
 
-  - [`/app`](#app)
-  - [`/components`](#components)
-  - [`/hooks`](#hooks)
-  - [`/services`](#services)
+  - [`/src`](#src)
+  - [`/src/app`](#srcapp)
+  - [`/src/components`](#srccomponents)
+  - [`/src/hooks`](#srchooks)
+  - [`/src/services`](#srcservices)
+  - [`/src/schemas`](#srcschemas)
   - [`middleware.ts`](#middlewarets)
 
 - [API Routes](#api-routes)
@@ -21,6 +23,7 @@
 - **React** (17+)
 - **Chakra UI** for UI components
 - **TypeScript** for static typing
+- **Zod** for declarative schema validation
 
 ---
 
@@ -39,33 +42,38 @@
    npm install
    # or
    yarn install
-
-   # the packages required:
-   npm install @chakra-ui/react @emotion/react @emotion/styled framer-motion
-   npm install @chakra-ui/icons
-   npm install react-loading-skeleton
-
+   # or
+   pnpm install
    ```
 
-3. **Run the server**
+3. **Add peer packages**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+   ```bash
+   npm install @chakra-ui/react @emotion/react @emotion/styled framer-motion
+   npm install @chakra-ui/icons react-loading-skeleton
+   npm install zod
+   ```
 
-# when everything is in place, run it on production mode
-# first build it:
-npm run build
-# then start the server:
-npm start
-```
+4. **Run the dev server**
 
-## Open [http://localhost:3000](http://localhost:3000) to see the app.
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   # or
+   bun dev
+   ```
+
+5. **Build for production**
+
+   ```bash
+   npm run build
+   npm start
+   ```
+
+> Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
@@ -80,92 +88,126 @@ npm start
 │  ├─ loading.tsx
 │  ├─ page.tsx
 │  ├─ page.module.css
-│  ├─ event_participants
-│  │  └─ [id]
+│  ├─ event_participants/
+│  │  └─ [id]/
 │  │     └─ page.tsx
 │  └─ api
 │     ├─ auth
-│     │  ├─ login
+│     │  ├─ login/
 │     │  │  └─ route.ts
-│     │  └─ logout
+│     │  └─ logout/
 │     │     └─ route.ts
-│     ├─ events
-│     │  └─ [...date]
-│     ├─ statusUpdate
-│     │  └─ [...data]
-│     └─ eventParticipants
-│        └─ [event_id]
-│           └─ route.ts
+│     ├─ events/
+│     │  └─ [...date]/
+│     │     └─ route.ts
+│     ├─ statusUpdate/
+│     │  └─ [...data]/
+│     │     └─ route.ts
+│     ├─ eventParticipants/
+│     │  └─ [event_id]/
+│     │     └─ route.ts
+│     ├─ newParticipant/
+│     │  └─ route.ts
 ├─ components
-│  ├─ Button
-│  ├─ Highlight
-│  ├─ ErrorMessage
-│  ├─ EventParticipantList
-│  ├─ Event
-│  │  ├─ Filters
-│  │  └─ Sort
-│  └─ SearchBox
+│  ├─ Button/
+│  │  ├─ Button.tsx
+│  │  ├─ Button.module.css
+│  │  └─ LogoutButton.tsx
+│  ├─ CheckinModal.tsx
+│  ├─ EventParticipantList/
+│  │  └─ EventParticipantList.tsx
+│  ├─ Event/
+│  │  ├─ Event.tsx
+│  │  ├─ EventList.tsx
+│  │  ├─ Event.module.css
+│  │  ├─ Filters/
+│  │  │  └─ DateFilter.tsx
+│  │  └─ Sort/
+│  │     ├─ SortByDate.tsx
+│  │     └─ SortByTitle.tsx
+│  ├─ Footer/
+│  │  ├─ Footer.tsx
+│  │  └─ Footer.module.css
+│  ├─ Highlight/
+│  │  └─ Highlight.tsx
+│  ├─ ParticipantDrawer.tsx
+│  ├─ SearchBox/
+│  │  └─ SearchBox.tsx
+│  └─ ErrorMessage/
+│     ├─ ErrorMessage.tsx
+│     └─ ErrorMessage.module.css
 ├─ hooks
 │  └─ useDebounce.ts
-└─ services
-   ├─ events.ts
-   └─ participants.ts
+├─ services
+│  ├─ events.ts
+│  ├─ participants.ts
+│  └─ contacts.ts
+├─ schemas
+│  └─ participant.ts
 ```
-
-Each folder groups related code:
-
-- **`app/`**: Next.js App Router entrypoint, global styles, layouts, and dynamic/server components.
-- **`components/`**: Reusable UI pieces (buttons, lists, filters).
-- **`hooks/`**: Custom React hooks for logic reuse (debouncing inputs).
-- **`services/`**: Encapsulated fetch logic for API calls.
-- **`middleware.ts`**: Protects routes by checking authentication cookie and redirects unauthenticated users.
 
 ---
 
 ## App Structure Explained
 
-### `/app`
+### `/src`
 
-- **`layout.tsx`**: Wraps all pages with shared UI (header, footer).
-- **`page.tsx`**: The home page component—sets up filters, search, and lists events.
-- **`loading.tsx`**: Displays a full-screen spinner while the app router loads.
-- **`api/`**: Serverless functions handling authentication (`/login`, `/logout`), event CRUD (`/events/[...date]`), and check-in status updates (`/statusUpdate/[...data]`).
-- **`event_participants/[id]/page.tsx`**: Dynamic route for individual event participant details.
+The root for all your Next.js application code and configuration.
 
-### `/components`
+### `/src/app`
 
-Reusable UI building blocks:
+- **`layout.tsx`**: Wraps pages with global UI (e.g., header/footer).
+- **`page.tsx`**: Home page—sets up filters, search box, and event list.
+- **`loading.tsx`**: Shown while data or routes are loading.
+- **`globals.css`** / **`page.module.css`**: Global and page-specific styles.
+- **`event_participants/[id]/page.tsx`**: Dynamic route for participants of a given event.
+- **`api/`**: Serverless routes for auth, event data, check-in, and participant creation.
 
-- **`Button`**: Styled button with optional variants (e.g., logout button).
-- **`Highlight`**: Emphasizes matching search terms in event titles.
-- **`ErrorMessage`**: Centralized error display component.
-- **`EventParticipantList`**: Renders participant lists with update controls.
-- **`Event`**: Card and list views for events, with nested `Filters` and `Sort` subcomponents.
-- **`SearchBox`**: Debounced input field for text filtering.
+### `/src/components`
 
-### `/hooks`
+Reusable UI building blocks, including:
 
-- **`useDebounce`**: Custom hook to delay updates of rapidly changing values (e.g., search input).
+- **`Button/`**: Primary and logout styled buttons.
+- **`CheckinModal.tsx`**: Modal for manual check-in.
+- **`EventParticipantList/`**: Table/list of participants with status updates.
+- **`Event/`**: Event cards, lists, plus nested Filters & Sort components.
+- **`Footer/`**: Site footer.
+- **`Highlight/`**: Highlights search matches in titles.
+- **`ParticipantDrawer.tsx`**: Slide-in form to add a new participant.
+- **`SearchBox/`**: Debounced text input for title search.
+- **`ErrorMessage/`**: Standardized error display.
 
-### `/services`
+### `/src/hooks`
 
-- **`events.ts`**: Server-agnostic functions to fetch event data.
-- **`participants.ts`**: API calls for fetching and updating participant data.
+- **`useDebounce.ts`**: Debounce rapid value changes (e.g., search input).
+
+### `/src/services`
+
+Abstracts API calls:
+
+- **`events.ts`**: Fetch events by date.
+- **`participants.ts`**: Create and fetch participants.
+- **`contacts.ts`**: Create or lookup CiviCRM contacts.
+
+### `/src/schemas`
+
+- **`participant.ts`**: Zod schema for validating and trimming participant inputs.
 
 ### `middleware.ts`
 
-Enforces authentication: intercepts all requests, checks for a valid session cookie, and redirects to `/login` if missing.
+Checks authentication cookie on every request; redirects to `/login` if unauthenticated.
 
 ---
 
 ## API Routes
 
-| Method | Path                                | Description                         |
-| ------ | ----------------------------------- | ----------------------------------- |
-| GET    | `/api/events/[year]/[month]/[day]`  | Fetch events by date                |
-| POST   | `/api/statusUpdate/[id]/[status]`   | Update check-in status for a user   |
-| GET    | `/api/eventParticipants/[event_id]` | Get participants for a given event  |
-| POST   | `/api/auth/login`                   | Authenticate and set session cookie |
-| POST   | `/api/auth/logout`                  | Destroy session and clear cookie    |
+| Method | Path                                | Description                            |
+| ------ | ----------------------------------- | -------------------------------------- |
+| POST   | `/api/auth/login`                   | Authenticate user, set session cookie  |
+| POST   | `/api/auth/logout`                  | Destroy session, clear cookie          |
+| GET    | `/api/events/[year]/[month]/[day]`  | Fetch events by date                   |
+| GET    | `/api/eventParticipants/[event_id]` | Retrieve participants for an event     |
+| POST   | `/api/statusUpdate/[id]/[status]`   | Update a participant’s check-in status |
+| POST   | `/api/newParticipant`               | Create a new participant record        |
 
 ---
