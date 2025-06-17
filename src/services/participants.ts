@@ -87,6 +87,42 @@ export async function fetchParticipantByEventId(eventId: any) {
   }
 }
 
+export async function fetchParticipantById(participantId: string) {
+  try {
+    const res = await fetch(PARTICIPANT_GET_URL, {
+      method: "POST",
+      headers: HEADER,
+      body: new URLSearchParams({
+        api_key: API_KEY,
+        params: JSON.stringify({
+          select: [
+            "register_date",
+            "source",
+            "status_id:label",
+            "contact_id.sort_name",
+          ],
+          where: [["id", "=", participantId]],
+        }),
+      }),
+    });
+    if (!res.ok) {
+      throw new Error("Failed to fetch participant by ID", {
+        cause: res.statusText,
+      });
+    }
+    const payload = await res.json();
+    if (payload.values.length === 0) {
+      console.warn(`No participant found with ID: ${participantId}`);
+      return null;
+    }
+    console.log("Fetched participant successfully:", payload.values[0]);
+    return payload.values[0];
+  } catch (error) {
+    console.error("Error fetching participant by ID:", error);
+    throw error;
+  }
+}
+
 // Note: the res reponded by server is always 200, even if the update failed
 export async function updateParticipantStatusAttended(
   participantId: string,
@@ -156,6 +192,7 @@ export async function createParticipant(data: {
             contact_id: contact.id,
             "status_id:name": data.status,
             source: data.source,
+            register_date: new Date().toISOString(),
           },
         }),
       }),
@@ -166,7 +203,17 @@ export async function createParticipant(data: {
       });
     }
     const payload = await res.json();
-    return payload.values[0];
+    // console.log("!1111111L", payload.values[0]);
+    if (payload.values.length === 0) {
+      console.warn("No participant created.");
+      return null;
+    }
+
+    // return payload.values[0];
+
+    // get the participant by ID with the fields we need. i.e. "status_id:label", "contact_id.sort_name".  (can not do this during creation)
+    const participant = await fetchParticipantById(payload.values[0].id);
+    return participant;
   } catch (error) {
     console.error("Error fetching contact by name:", error);
     throw error;

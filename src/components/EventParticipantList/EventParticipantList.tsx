@@ -55,7 +55,11 @@ export default function EventParticipantList({
       <TableContainer>
         <Table variant="simple" maxHeight="400px">
           <TableCaption>
-            <ParticipantDrawer eventId={eventId} />
+            <ParticipantDrawer
+              eventId={eventId}
+              participants={participants}
+              setParticipants={setParticipants}
+            />
           </TableCaption>
           <Thead>
             <Tr>

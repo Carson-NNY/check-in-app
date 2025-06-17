@@ -22,9 +22,15 @@ import { AddIcon } from "@chakra-ui/icons";
 
 type ParticipantDrawerProps = {
   eventId: string;
+  participants: any[];
+  setParticipants: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
-export default function ParticipantDrawer({ eventId }: ParticipantDrawerProps) {
+export default function ParticipantDrawer({
+  eventId,
+  participants,
+  setParticipants,
+}: ParticipantDrawerProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const firstField = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -40,8 +46,11 @@ export default function ParticipantDrawer({ eventId }: ParticipantDrawerProps) {
     });
 
     if (res.ok) {
+      const newParticipant = await res.json();
+      console.log("New participant added:", newParticipant);
+
+      setParticipants((prev) => [...prev, newParticipant]);
       onClose();
-      // TODO: refresh list
     } else {
       const err = await res.json();
       console.error("Error:", err);

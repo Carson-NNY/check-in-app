@@ -25,15 +25,15 @@ export async function POST(request: Request) {
 
   try {
     const res = await createParticipant(participantInput);
+
     if (!res) {
       return NextResponse.json(
         { error: "Failed to create participant" },
         { status: 500 }
       );
     }
-    return NextResponse.json({
-      success: true,
-    });
+    // return NextResponse.json(res, { status: 201 });
+    return NextResponse.json(res);
   } catch (error) {
     console.error("Error in /api/newParticipant/route.ts:", error);
     return NextResponse.json(
