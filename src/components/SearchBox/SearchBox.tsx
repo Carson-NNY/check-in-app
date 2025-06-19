@@ -1,20 +1,57 @@
-import { Input, Flex } from "@chakra-ui/react";
+import {
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  IconButton,
+} from "@chakra-ui/react";
+import { SearchIcon, CloseIcon } from "@chakra-ui/icons";
 
 type SearchBoxProps = {
   search: string;
   setSearch: (value: string) => void;
+  placeholder: string;
 };
 
-export default function SearchBox({ search, setSearch }: SearchBoxProps) {
+export default function SearchBox({
+  search,
+  setSearch,
+  placeholder,
+}: SearchBoxProps) {
+  const handleClear = () => {
+    setSearch("");
+  };
+
   return (
-    <Flex align="center" gap={2} margin={2}>
-      Search:
+    <InputGroup>
+      <InputLeftElement pointerEvents="none">
+        <SearchIcon color="gray.400" />
+      </InputLeftElement>
       <Input
         type="text"
+        placeholder={placeholder}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        width="320px"
+        // width="520px"
+        variant="filled"
+        size="lg"
+        paddingRight="48px"
       />
-    </Flex>
+      {search && (
+        <InputRightElement width="48px" height="100%">
+          <IconButton
+            aria-label="Clear search"
+            icon={<CloseIcon />}
+            size="md"
+            variant="ghost"
+            color="gray.500"
+            _hover={{ color: "gray.700", bg: "gray.100" }}
+            onClick={handleClear}
+            minWidth="32px"
+            height="32px"
+          />
+        </InputRightElement>
+      )}
+    </InputGroup>
   );
 }

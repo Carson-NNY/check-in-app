@@ -62,10 +62,11 @@ export async function fetchParticipantByEventId(eventId: any) {
             "register_date",
             "source",
             "status_id:label", // Option transformations
-            "contact_id.sort_name", // implicit join
+            "contact_id.first_name", // implicit join
+            "contact_id.last_name", // implicit join
           ],
           where: [["event_id", "=", eventId]],
-          orderBy: { "contact_id.sort_name": "ASC" },
+          orderBy: { "status_id:label": "DESC" },
           limit: 20,
         }),
       }),
@@ -115,7 +116,6 @@ export async function fetchParticipantById(participantId: string) {
       console.warn(`No participant found with ID: ${participantId}`);
       return null;
     }
-    console.log("Fetched participant successfully:", payload.values[0]);
     return payload.values[0];
   } catch (error) {
     console.error("Error fetching participant by ID:", error);

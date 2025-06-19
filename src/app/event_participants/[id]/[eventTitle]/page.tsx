@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "../.././page.module.css";
+import styles from "../../.././page.module.css";
 import EventParticipantList from "@/components/EventParticipantList/EventParticipantList";
 import { useState, useEffect, useMemo } from "react";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
@@ -17,9 +17,10 @@ import "react-loading-skeleton/dist/skeleton.css";
 export default function EventParticipants({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string; eventTitle: string };
 }) {
   const [eventId, setEventId] = useState<string | null>(null);
+  const [eventTitle, setEventTitle] = useState<string | null>(null);
   const [participants, setParticipants] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
@@ -33,9 +34,12 @@ export default function EventParticipants({
 
     const kw = debouncedSearch.toLowerCase();
     return participants.filter((participant) => {
-      return (participant["contact_id.sort_name"] ?? "")
-        .toLowerCase()
-        .includes(kw);
+      return (
+        (participant["contact_id.first_name"] ?? "")
+          .toLowerCase()
+          .includes(kw) ||
+        (participant["contact_id.last_name"] ?? "").toLowerCase().includes(kw)
+      );
     });
   }, [participants, debouncedSearch]);
 
@@ -44,9 +48,14 @@ export default function EventParticipants({
       try {
         const resolvedParams = await params;
         setEventId(resolvedParams.id);
+        setEventTitle(
+          resolvedParams.eventTitle
+            ? decodeURIComponent(resolvedParams.eventTitle)
+            : null
+        );
       } catch (err) {
         console.error("Error unwrapping params:", err);
-        setError("Failed to resolve event ID.");
+        setError("Failed to resolve event ID or title.");
       }
     };
 
@@ -96,11 +105,17 @@ export default function EventParticipants({
         />
       </div>
 
-      <h2>
-        Event Participants{" "}
+      <h2 className={styles.eventTitle}>
+        {eventTitle}
         <span style={{ fontSize: "18px" }}>(Event ID: {eventId})</span>
       </h2>
-      <SearchBox search={search} setSearch={setSearch} />
+      <div className={styles.searchBox}>
+        <SearchBox
+          search={search}
+          setSearch={setSearch}
+          placeholder="Search by names"
+        />
+      </div>
 
       {isLoading ? (
         <Skeleton count={20} height={30} duration={0.7} borderRadius={10} />

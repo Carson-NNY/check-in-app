@@ -10,6 +10,15 @@
   align-items: center;
 }
 
+.searchBox {
+  margin: 1rem 0;
+}
+
+.eventTitle {
+  margin-top: 18px;
+  text-align: center;
+}
+
 @media (prefers-color-scheme: dark) {
   .page {
     --gray-rgb: 255, 255, 255;

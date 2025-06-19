@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation";
 import { HighlightComponent } from "../Highlight/Highlight";
 import SortByTitle from "./Sort/SortByTitle";
 import SortByDate from "./Sort/SortByDate";
+import styles from "./Event.module.css";
 
 import {
   Table,
@@ -40,7 +41,6 @@ export default function EventList({
 
   return (
     <div>
-      <h1>Events</h1>
       {events.length === 0 ? (
         <p>No events found.</p>
       ) : (
@@ -74,7 +74,11 @@ export default function EventList({
                 <Tr
                   key={i}
                   style={{ cursor: "pointer" }}
-                  onClick={() => router.push(`/event_participants/${event.id}`)}
+                  onClick={() =>
+                    router.push(
+                      `/event_participants/${event.id}/${event.title}`
+                    )
+                  }
                   _hover={{ bg: "gray.50" }}
                 >
                   <Td>{event.id.toString()}</Td>
