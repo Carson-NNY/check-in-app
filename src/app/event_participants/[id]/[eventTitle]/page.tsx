@@ -8,19 +8,24 @@ import useDebounce from "@/hooks/useDebounce";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import LogoutButton from "@/components/Button/LogoutButton";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Box } from "@chakra-ui/react";
 import Button from "@/components/Button/Button";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-export default function EventParticipants({
-  params,
-}: {
-  params: { id: string; eventTitle: string };
-}) {
-  const [eventId, setEventId] = useState<string | null>(null);
-  const [eventTitle, setEventTitle] = useState<string | null>(null);
+export default function EventParticipants() {
+  const params = useParams();
+  const rawId = params.id;
+  const rawTitle = params.eventTitle;
+
+  const eventId = Array.isArray(rawId) ? rawId[0] : rawId ?? "";
+  const eventTitle = Array.isArray(rawTitle)
+    ? rawTitle[0]
+    : rawTitle
+    ? decodeURIComponent(rawTitle)
+    : "";
+
   const [participants, setParticipants] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
@@ -42,25 +47,6 @@ export default function EventParticipants({
       );
     });
   }, [participants, debouncedSearch]);
-
-  useEffect(() => {
-    const unwrapParams = async () => {
-      try {
-        const resolvedParams = await params;
-        setEventId(resolvedParams.id);
-        setEventTitle(
-          resolvedParams.eventTitle
-            ? decodeURIComponent(resolvedParams.eventTitle)
-            : null
-        );
-      } catch (err) {
-        console.error("Error unwrapping params:", err);
-        setError("Failed to resolve event ID or title.");
-      }
-    };
-
-    unwrapParams();
-  }, [params]);
 
   useEffect(() => {
     if (!eventId) return;
@@ -106,7 +92,7 @@ export default function EventParticipants({
       </div>
 
       <h2 className={styles.eventTitle}>
-        {eventTitle}
+        {eventTitle ? eventTitle : "Event Participants"}{" "}
         <span style={{ fontSize: "18px" }}>(Event ID: {eventId})</span>
       </h2>
       <div className={styles.searchBox}>

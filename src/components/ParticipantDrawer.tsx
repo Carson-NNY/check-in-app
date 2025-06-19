@@ -58,7 +58,6 @@ export default function ParticipantDrawer({
 
     if (res.ok) {
       const newParticipant = await res.json();
-      console.log("New participant added:", newParticipant);
       setParticipants((prev) => [...prev, newParticipant]);
       toast({
         title: "Success!",

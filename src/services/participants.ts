@@ -101,6 +101,8 @@ export async function fetchParticipantById(participantId: string) {
             "source",
             "status_id:label",
             "contact_id.sort_name",
+            "contact_id.first_name",
+            "contact_id.last_name",
           ],
           where: [["id", "=", participantId]],
         }),
@@ -203,7 +205,7 @@ export async function createParticipant(data: {
       });
     }
     const payload = await res.json();
-    if (payload.values.length === 0) {
+    if (payload.values == null || payload.values.length === 0) {
       console.warn("No participant created.");
       return null;
     }
