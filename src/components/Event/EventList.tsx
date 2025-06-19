@@ -84,7 +84,7 @@ export default function EventList({
                   <Td>{event.id.toString()}</Td>
                   <Td maxW="300px" whiteSpace="normal" wordBreak="break-word">
                     <HighlightComponent
-                      text={event.title}
+                      text={event.title ? event.title : ""}
                       highlight={highlight}
                     />
                   </Td>

@@ -135,7 +135,11 @@ export default function EventParticipantList({
                       wordBreak="break-word"
                     >
                       <HighlightComponent
-                        text={participant["contact_id.first_name"]}
+                        text={
+                          participant["contact_id.first_name"]
+                            ? participant["contact_id.first_name"]
+                            : ""
+                        }
                         highlight={highlight}
                       />
                     </Td>
@@ -146,7 +150,11 @@ export default function EventParticipantList({
                       wordBreak="break-word"
                     >
                       <HighlightComponent
-                        text={participant["contact_id.last_name"]}
+                        text={
+                          participant["contact_id.last_name"]
+                            ? participant["contact_id.last_name"]
+                            : ""
+                        }
                         highlight={highlight}
                       />
                     </Td>
