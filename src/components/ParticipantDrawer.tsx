@@ -42,7 +42,7 @@ export default function ParticipantDrawer({
     const form = e.currentTarget;
     const payload = {
       eventId,
-      status: "Attended",
+      status: "Registered",
       lastName: form.lastName.value,
       firstName: form.firstName.value,
       middleName: form.middleName.value,
