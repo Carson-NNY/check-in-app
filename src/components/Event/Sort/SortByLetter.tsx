@@ -17,7 +17,7 @@ type SortByLetterProps = {
   children?: React.ReactNode;
 };
 
-export default function SortByLetter({
+export default function SortByLettparticipantStatuser({
   sortList,
   setSortList,
   sortOrder,
@@ -67,9 +67,11 @@ export default function SortByLetter({
                   ignorePunctuation: true,
                 });
           case "participantStatus":
-            const aStatus = a["contact_id.status_id.label"].toLowerCase();
-            const bStatus = b["contact_id.status_id.label"].toLowerCase();
-            return next === "ASC"
+            const aStatus = a["status_id:label"].toLowerCase();
+            const bStatus = b["status_id:label"].toLowerCase();
+            // use DSEC here since we want the first click of the currentStatus button to sort
+            // the list so that the "Attended" status is at the bottom of the list (green check-in button on the top)
+            return next === "DESC"
               ? aStatus.localeCompare(bStatus, undefined, {
                   ignorePunctuation: true,
                 })

@@ -107,6 +107,7 @@ export default function EventParticipants() {
         <Skeleton count={20} height={30} duration={0.7} borderRadius={10} />
       ) : (
         <>
+          <ErrorMessage error={error} setError={setError} />
           <EventParticipantList
             participantList={displayedParticipants}
             setParticipantList={setParticipants}
@@ -114,7 +115,6 @@ export default function EventParticipants() {
             highlight={search}
             eventId={eventId || ""}
           />
-          <ErrorMessage error={error} setError={setError} />
         </>
       )}
     </div>

@@ -42,6 +42,10 @@ export default function EventParticipantList({
     null
   );
 
+  const [sortByStatus, _setSortByStatus] = useState<"ASC" | "DESC" | null>(
+    null
+  );
+
   const handleUpdate = async (
     id: string,
     status: string,
@@ -109,11 +113,25 @@ export default function EventParticipantList({
 
   const setSortByFirstName = (o: "ASC" | "DESC" | null) => {
     _setSortByFirstName(o);
-    if (o) _setSortByLastName(null);
+    if (o) {
+      _setSortByLastName(null);
+      _setSortByStatus(null);
+    }
   };
   const setSortByLastname = (o: "ASC" | "DESC" | null) => {
     _setSortByLastName(o);
-    if (o) _setSortByFirstName(null);
+    if (o) {
+      _setSortByFirstName(null);
+      _setSortByStatus(null);
+    }
+  };
+
+  const setSortByStatus = (o: "ASC" | "DESC" | null) => {
+    _setSortByStatus(o);
+    if (o) {
+      _setSortByLastName(null);
+      _setSortByFirstName(null);
+    }
   };
 
   return (
@@ -150,8 +168,17 @@ export default function EventParticipantList({
                   Last Name
                 </SortByLetter>
               </Th>
-              {/* <Th>register_date</Th> */}
-              <Th>currentStatus</Th>
+              <Th>
+                <SortByLetter
+                  sortOrder={sortByStatus}
+                  setSortOrder={setSortByStatus}
+                  sortList={participantList}
+                  setSortList={setParticipantList}
+                  sortTarget="participantStatus"
+                >
+                  currentStatus
+                </SortByLetter>
+              </Th>
               <Th>Actions</Th>
             </Tr>
           </Thead>
@@ -196,7 +223,6 @@ export default function EventParticipantList({
                         highlight={highlight}
                       />
                     </Td>
-                    {/* <Td>{participant.register_date}</Td> */}
                     <Td>{currentStatus}</Td>
                     <Td>
                       {currentStatus === "Attended" ? (
