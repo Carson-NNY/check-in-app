@@ -168,6 +168,8 @@ export default function EventParticipantList({
                   Last Name
                 </SortByLetter>
               </Th>
+
+              <Th>Contact</Th>
               <Th>
                 <SortByLetter
                   sortOrder={sortByStatus}
@@ -179,7 +181,6 @@ export default function EventParticipantList({
                   currentStatus
                 </SortByLetter>
               </Th>
-              <Th>Actions</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -195,7 +196,7 @@ export default function EventParticipantList({
                   <Tr key={index}>
                     <Td
                       maxW="200px"
-                      width="150px"
+                      width="140px"
                       whiteSpace="normal"
                       wordBreak="break-word"
                     >
@@ -210,7 +211,7 @@ export default function EventParticipantList({
                     </Td>
                     <Td
                       maxW="200px"
-                      width="150px"
+                      width="140px"
                       whiteSpace="normal"
                       wordBreak="break-word"
                     >
@@ -223,21 +224,28 @@ export default function EventParticipantList({
                         highlight={highlight}
                       />
                     </Td>
-                    <Td>{currentStatus}</Td>
                     <Td>
+                      {participant["contact_id.phone_primary.phone_numeric"]
+                        ? participant["contact_id.phone_primary.phone_numeric"]
+                        : "None"}
+                    </Td>
+                    <Td>
+                      {currentStatus} -{" "}
                       {currentStatus === "Attended" ? (
-                        <Button
-                          pattern="grey"
-                          onClick={() =>
-                            handleCheckInClick(
-                              participant,
-                              index,
-                              currentStatus
-                            )
-                          }
-                        >
-                          &nbsp; Revert &nbsp;
-                        </Button>
+                        <span style={{ marginLeft: "6px" }}>
+                          <Button
+                            pattern="grey"
+                            onClick={() =>
+                              handleCheckInClick(
+                                participant,
+                                index,
+                                currentStatus
+                              )
+                            }
+                          >
+                            &nbsp;&nbsp; Revert &nbsp;
+                          </Button>
+                        </span>
                       ) : (
                         <Button
                           pattern="green"

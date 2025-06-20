@@ -50,6 +50,7 @@ export async function fetchAllParticipants() {
   }
 }
 
+// if
 export async function fetchParticipantByEventId(eventId: any) {
   try {
     const res = await fetch(PARTICIPANT_GET_URL, {
@@ -61,9 +62,11 @@ export async function fetchParticipantByEventId(eventId: any) {
           select: [
             "register_date",
             "source",
+            "contact_id",
             "status_id:label", // Option transformations
             "contact_id.first_name", // implicit join
             "contact_id.last_name", // implicit join
+            "contact_id.phone_primary.phone_numeric", // nested implicit join
           ],
           where: [["event_id", "=", eventId]],
           orderBy: { "status_id:label": "DESC" },
@@ -80,6 +83,7 @@ export async function fetchParticipantByEventId(eventId: any) {
       );
     }
     const data = await res.json();
+    console.log("Fetched participants by event ID:", data);
     return data.values;
   } catch (error) {
     console.error("Error fetching participants by event ID:", error);
