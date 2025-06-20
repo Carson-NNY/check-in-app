@@ -13,6 +13,16 @@ import { Box } from "@chakra-ui/react";
 import Button from "@/components/Button/Button";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { MdAccountBox } from "react-icons/md";
+
+import {
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  StatGroup,
+} from "@chakra-ui/react";
 
 export default function EventParticipants() {
   const params = useParams();
@@ -27,6 +37,11 @@ export default function EventParticipants() {
     : "";
 
   const [participants, setParticipants] = useState<any[]>([]);
+  const [checkedInParticipantCount, setCheckedInParticipantCount] =
+    useState<number>(0);
+  const [uncheckedInParticipantCount, setUncheckedInParticipantCount] =
+    useState<number>(0);
+
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 500);
@@ -47,6 +62,16 @@ export default function EventParticipants() {
       );
     });
   }, [participants, debouncedSearch]);
+
+  useEffect(() => {
+    if (participants.length === 0) return;
+    setCheckedInParticipantCount(
+      participants.filter((p) => p["status_id:label"] === "Attended").length
+    );
+    setUncheckedInParticipantCount(
+      participants.filter((p) => p["status_id:label"] !== "Attended").length
+    );
+  }, [participants]);
 
   useEffect(() => {
     if (!eventId) return;
@@ -101,6 +126,70 @@ export default function EventParticipants() {
           setSearch={setSearch}
           placeholder="Search by names"
         />
+
+        <Box width="100%" display="flex" justifyContent="center" mb={4}>
+          <StatGroup width="70%" maxWidth="600px">
+            <Stat>
+              <StatLabel>Total Participants</StatLabel>
+              <StatNumber>{participants.length}</StatNumber>
+              <StatHelpText></StatHelpText>
+            </Stat>
+
+            <Stat>
+              <StatLabel>Checked in</StatLabel>
+              <StatNumber>{checkedInParticipantCount}</StatNumber>
+              <StatHelpText>
+                {/* <StatArrow type="decrease" /> */}
+                {checkedInParticipantCount / participants.length > 0.5 ? (
+                  <>
+                    <StatArrow type="increase" />
+                    {(
+                      (checkedInParticipantCount / participants.length) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </>
+                ) : (
+                  <>
+                    <StatArrow type="decrease" />
+                    {(
+                      (checkedInParticipantCount / participants.length) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </>
+                )}
+              </StatHelpText>
+            </Stat>
+
+            <Stat>
+              <StatLabel>Unchecked in</StatLabel>
+              <StatNumber>{uncheckedInParticipantCount}</StatNumber>
+              <StatHelpText>
+                {/* <StatArrow type="decrease" /> */}
+                {uncheckedInParticipantCount / participants.length > 0.5 ? (
+                  <>
+                    <StatArrow type="increase" />
+                    {(
+                      (uncheckedInParticipantCount / participants.length) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </>
+                ) : (
+                  <>
+                    <StatArrow type="decrease" />
+                    {(
+                      (uncheckedInParticipantCount / participants.length) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </>
+                )}
+              </StatHelpText>
+            </Stat>
+          </StatGroup>
+        </Box>
       </div>
 
       {isLoading ? (
@@ -110,6 +199,7 @@ export default function EventParticipants() {
           <ErrorMessage error={error} setError={setError} />
           <EventParticipantList
             participantList={displayedParticipants}
+            originalParticipantList={participants}
             setParticipantList={setParticipants}
             setError={setError}
             highlight={search}

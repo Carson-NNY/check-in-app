@@ -83,7 +83,6 @@ export async function fetchParticipantByEventId(eventId: any) {
       );
     }
     const data = await res.json();
-    console.log("Fetched participants by event ID:", data);
     return data.values;
   } catch (error) {
     console.error("Error fetching participants by event ID:", error);

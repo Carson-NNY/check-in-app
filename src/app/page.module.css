@@ -12,6 +12,10 @@
 
 .searchBox {
   margin: 1rem 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
 }
 
 .eventTitle {

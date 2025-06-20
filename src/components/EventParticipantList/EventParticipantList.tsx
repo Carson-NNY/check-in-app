@@ -20,6 +20,7 @@ import {
 
 type Participant = {
   participantList: any[];
+  originalParticipantList: any[];
   setParticipantList: React.Dispatch<React.SetStateAction<any[]>>;
   setError: (error: string | null) => void;
   highlight: string;
@@ -28,6 +29,7 @@ type Participant = {
 
 export default function EventParticipantList({
   participantList,
+  originalParticipantList,
   setParticipantList,
   setError,
   highlight,
@@ -76,38 +78,33 @@ export default function EventParticipantList({
   };
 
   // behave differently for undo and check-in
-  const handleCheckInClick = (
-    participant: any,
-    index: any,
-    currentStatus: string
-  ) => {
-    const updatedParticipants = [...participantList];
-    // Remove the participant from their current position
-    updatedParticipants.splice(index, 1);
-    // Update their status
+  const handleCheckInClick = (participant: any) => {
+    const newStatus =
+      participant["status_id:label"] === "Attended" ? "Registered" : "Attended";
+
     const updatedParticipant = {
       ...participant,
-      statusLabel: currentStatus === "Attended" ? "Registered" : "Attended",
+      "status_id:label": newStatus,
     };
 
-    // Add to beginning if now "Attended", or end if "Registered"
-    if (currentStatus === "Attended") {
-      // If reverting to "Registered", add to end
-      updatedParticipants.unshift(updatedParticipant);
+    const filtered = originalParticipantList.filter(
+      (p) => p.id !== participant.id
+    );
+
+    if (newStatus === "Attended") {
+      filtered.push(updatedParticipant);
     } else {
-      // If checking in to "Attended", add to beginning
-      updatedParticipants.push(updatedParticipant);
+      filtered.unshift(updatedParticipant);
     }
 
-    setParticipantList(updatedParticipants);
+    // 5. Update state and fire your API call
+    setParticipantList(filtered);
     handleUpdate(
       participant.id,
-      currentStatus === "Attended" ? "Registered" : "Attended",
+      newStatus,
       participant["contact_id.first_name"],
       participant["contact_id.last_name"],
-      currentStatus === "Attended"
-        ? "reverted to registered status."
-        : "checked In"
+      newStatus === "Attended" ? "checked in" : "reverted to registered status"
     );
   };
 
@@ -118,6 +115,7 @@ export default function EventParticipantList({
       _setSortByStatus(null);
     }
   };
+
   const setSortByLastname = (o: "ASC" | "DESC" | null) => {
     _setSortByLastName(o);
     if (o) {
@@ -190,8 +188,7 @@ export default function EventParticipantList({
               </Tr>
             ) : (
               participantList.map((participant: any, index) => {
-                const currentStatus =
-                  participant.statusLabel ?? participant["status_id:label"];
+                const currentStatus = participant["status_id:label"];
                 return (
                   <Tr key={index}>
                     <Td
@@ -235,13 +232,7 @@ export default function EventParticipantList({
                         <span style={{ marginLeft: "6px" }}>
                           <Button
                             pattern="grey"
-                            onClick={() =>
-                              handleCheckInClick(
-                                participant,
-                                index,
-                                currentStatus
-                              )
-                            }
+                            onClick={() => handleCheckInClick(participant)}
                           >
                             &nbsp;&nbsp; Revert &nbsp;
                           </Button>
@@ -249,13 +240,7 @@ export default function EventParticipantList({
                       ) : (
                         <Button
                           pattern="green"
-                          onClick={() =>
-                            handleCheckInClick(
-                              participant,
-                              index,
-                              currentStatus
-                            )
-                          }
+                          onClick={() => handleCheckInClick(participant)}
                         >
                           Check In
                         </Button>
