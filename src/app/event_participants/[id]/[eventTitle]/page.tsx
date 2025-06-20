@@ -109,6 +109,7 @@ export default function EventParticipants() {
         <>
           <EventParticipantList
             participantList={displayedParticipants}
+            setParticipantList={setParticipants}
             setError={setError}
             highlight={search}
             eventId={eventId || ""}

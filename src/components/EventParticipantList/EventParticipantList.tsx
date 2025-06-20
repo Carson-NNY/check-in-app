@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { HighlightComponent } from "../Highlight/Highlight";
 import ParticipantDrawer from "../ParticipantDrawer";
 import { useToast } from "@chakra-ui/react";
 import Button from "../Button/Button";
+import SortByLetter from "../Event/Sort/SortByLetter";
 
 import {
   Table,
@@ -19,6 +20,7 @@ import {
 
 type Participant = {
   participantList: any[];
+  setParticipantList: React.Dispatch<React.SetStateAction<any[]>>;
   setError: (error: string | null) => void;
   highlight: string;
   eventId: string;
@@ -26,16 +28,19 @@ type Participant = {
 
 export default function EventParticipantList({
   participantList,
+  setParticipantList,
   setError,
   highlight,
   eventId,
 }: Participant) {
-  const [participants, setParticipants] = useState<any[]>([]);
   const toast = useToast();
 
-  useEffect(() => {
-    setParticipants(participantList);
-  }, [participantList]);
+  const [sortByFirstName, _setSortByFirstName] = useState<
+    "ASC" | "DESC" | null
+  >(null);
+  const [sortByLastName, _setSortByLastName] = useState<"ASC" | "DESC" | null>(
+    null
+  );
 
   const handleUpdate = async (
     id: string,
@@ -67,8 +72,12 @@ export default function EventParticipantList({
   };
 
   // behave differently for undo and check-in
-  const handleClick = (participant: any, index: any, currentStatus: string) => {
-    const updatedParticipants = [...participants];
+  const handleCheckInClick = (
+    participant: any,
+    index: any,
+    currentStatus: string
+  ) => {
+    const updatedParticipants = [...participantList];
     // Remove the participant from their current position
     updatedParticipants.splice(index, 1);
     // Update their status
@@ -86,7 +95,7 @@ export default function EventParticipantList({
       updatedParticipants.push(updatedParticipant);
     }
 
-    setParticipants(updatedParticipants);
+    setParticipantList(updatedParticipants);
     handleUpdate(
       participant.id,
       currentStatus === "Attended" ? "Registered" : "Attended",
@@ -98,6 +107,15 @@ export default function EventParticipantList({
     );
   };
 
+  const setSortByFirstName = (o: "ASC" | "DESC" | null) => {
+    _setSortByFirstName(o);
+    if (o) _setSortByLastName(null);
+  };
+  const setSortByLastname = (o: "ASC" | "DESC" | null) => {
+    _setSortByLastName(o);
+    if (o) _setSortByFirstName(null);
+  };
+
   return (
     <ul>
       <TableContainer>
@@ -105,25 +123,45 @@ export default function EventParticipantList({
           <TableCaption>
             <ParticipantDrawer
               eventId={eventId}
-              setParticipants={setParticipants}
+              setParticipants={setParticipantList}
             />
           </TableCaption>
           <Thead>
             <Tr>
-              <Th>First Name</Th>
-              <Th>Last Name</Th>
+              <Th>
+                <SortByLetter
+                  sortOrder={sortByFirstName}
+                  setSortOrder={setSortByFirstName}
+                  sortList={participantList}
+                  setSortList={setParticipantList}
+                  sortTarget="participantFirstName"
+                >
+                  First Name
+                </SortByLetter>
+              </Th>
+              <Th>
+                <SortByLetter
+                  sortOrder={sortByLastName}
+                  setSortOrder={setSortByLastname}
+                  sortList={participantList}
+                  setSortList={setParticipantList}
+                  sortTarget="participantLastName"
+                >
+                  Last Name
+                </SortByLetter>
+              </Th>
               {/* <Th>register_date</Th> */}
               <Th>currentStatus</Th>
               <Th>Actions</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {participants.length === 0 ? (
+            {participantList.length === 0 ? (
               <Tr>
                 <Td colSpan={3}>No participants found.</Td>
               </Tr>
             ) : (
-              participants.map((participant: any, index) => {
+              participantList.map((participant: any, index) => {
                 const currentStatus =
                   participant.statusLabel ?? participant["status_id:label"];
                 return (
@@ -165,7 +203,11 @@ export default function EventParticipantList({
                         <Button
                           pattern="grey"
                           onClick={() =>
-                            handleClick(participant, index, currentStatus)
+                            handleCheckInClick(
+                              participant,
+                              index,
+                              currentStatus
+                            )
                           }
                         >
                           &nbsp; Revert &nbsp;
@@ -174,7 +216,11 @@ export default function EventParticipantList({
                         <Button
                           pattern="green"
                           onClick={() =>
-                            handleClick(participant, index, currentStatus)
+                            handleCheckInClick(
+                              participant,
+                              index,
+                              currentStatus
+                            )
                           }
                         >
                           Check In

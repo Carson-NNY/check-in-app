@@ -67,7 +67,6 @@ export async function fetchParticipantByEventId(eventId: any) {
           ],
           where: [["event_id", "=", eventId]],
           orderBy: { "status_id:label": "DESC" },
-          limit: 20,
         }),
       }),
     });
