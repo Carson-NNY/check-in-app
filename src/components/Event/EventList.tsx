@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 import { HighlightComponent } from "../Highlight/Highlight";
-import SortByTitle from "./Sort/SortByTitle";
+import SortByLetter from "./Sort/SortByLetter";
 import SortByDate from "./Sort/SortByDate";
 import styles from "./Event.module.css";
 
@@ -52,12 +52,15 @@ export default function EventList({
                 <Th>event_id</Th>
                 <Th>
                   {/* Sort by title */}
-                  <SortByTitle
-                    sortByTitle={sortByTitle}
-                    setSortByTitle={setSortByTitle}
-                    eventList={eventList}
-                    setEventList={setEventList}
-                  />
+                  <SortByLetter
+                    sortOrder={sortByTitle}
+                    setSortOrder={setSortByTitle}
+                    sortList={eventList}
+                    setSortList={setEventList}
+                    sortTarget="eventTitle"
+                  >
+                    event title
+                  </SortByLetter>
                 </Th>
                 <Th>
                   <SortByDate
