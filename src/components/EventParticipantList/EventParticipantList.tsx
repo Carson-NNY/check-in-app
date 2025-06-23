@@ -262,9 +262,7 @@ export default function EventParticipantList({
                     >
                       {currentStatus}{" "}
                       {currentStatus === "Attended" ? (
-                        <span
-                        // style={{ marginLeft: "6px" }}
-                        >
+                        <span>
                           <Button
                             pattern="grey"
                             onClick={() => handleCheckInClick(participant)}
