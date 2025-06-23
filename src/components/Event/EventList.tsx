@@ -2,7 +2,6 @@ import { useRouter } from "next/navigation";
 import { HighlightComponent } from "../Highlight/Highlight";
 import SortByLetter from "./Sort/SortByLetter";
 import SortByDate from "./Sort/SortByDate";
-import styles from "./Event.module.css";
 
 import {
   Table,
@@ -44,10 +43,16 @@ export default function EventList({
       {events.length === 0 ? (
         <p>No events found.</p>
       ) : (
-        <TableContainer>
+        <TableContainer
+          maxH="800px"
+          overflowY="auto"
+          border="1px solid"
+          borderColor="gray.200"
+          borderRadius="md"
+        >
           <Table variant="simple" maxHeight="400px">
             <TableCaption>Momath ~~~~~~</TableCaption>
-            <Thead>
+            <Thead position="sticky" top={0} bg="white" zIndex="docked">
               <Tr>
                 <Th>event_id</Th>
                 <Th>

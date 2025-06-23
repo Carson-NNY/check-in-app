@@ -167,9 +167,7 @@ export default function EventPage() {
           onMonthChange={(m) => {
             setMonth(m);
             setDay("");
-            setSelectedDate(
-              m && year ? new Date(Number(year), Number(m) - 1, 1) : null
-            );
+            setSelectedDate(new Date(Number(year), Number(m) - 1, 1));
           }}
           onDayChange={(d) => {
             setDay(d);

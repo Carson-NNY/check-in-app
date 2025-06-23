@@ -145,7 +145,13 @@ export default function EventParticipantList({
 
   return (
     <ul>
-      <TableContainer>
+      <TableContainer
+        maxH="800px"
+        overflowY="auto"
+        border="1px solid"
+        borderColor="gray.200"
+        borderRadius="md"
+      >
         <Table variant="simple" maxHeight="400px">
           <TableCaption>
             <ParticipantDrawer
@@ -153,7 +159,7 @@ export default function EventParticipantList({
               setParticipants={setParticipantList}
             />
           </TableCaption>
-          <Thead>
+          <Thead position="sticky" top={0} bg="white" zIndex="docked">
             <Tr>
               <Th>
                 <SortByLetter
