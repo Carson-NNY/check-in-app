@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DateFilters from "@/components/Event/Filters/DateFilter";
 import EventList from "./EventList";
@@ -12,137 +12,32 @@ import Button from "../Button/Button";
 import LogoutButton from "@/components/Button/LogoutButton";
 import { Flex } from "@chakra-ui/react";
 import Skeleton from "react-loading-skeleton";
-import { SkeletonCircle } from "@chakra-ui/react";
 import "react-loading-skeleton/dist/skeleton.css";
 
 export default function EventPage() {
   const router = useRouter();
   const params = useSearchParams();
 
-  // Local state mirrors what will eventually get pushed to URL
+  // — search
+  const [search, setSearch] = useState("");
+  const deferredSearch = useDebounce(search, 500);
+
+  // — filters
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
-  const [search, setSearch] = useState("");
 
+  // — calendar
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  // — data & UI state
   const [eventList, setEventList] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // — sorting
   const [sortByDate, _setSortByDate] = useState<"ASC" | "DESC" | null>(null);
   const [sortByTitle, _setSortByTitle] = useState<"ASC" | "DESC" | null>(null);
-
-  // Apply 500 ms debounce so URL typing feels snappy
-  const deferredSearch = useDebounce(search, 500);
-
-  /** ----------------------------------------------------------------
-   *  URL helpers
-   *  ---------------------------------------------------------------- */
-  const updateQuery = useCallback(
-    (updates: Record<string, string | null>) => {
-      const q = new URLSearchParams(params.toString());
-
-      Object.entries(updates).forEach(([k, v]) => {
-        if (v === null || v === "") q.delete(k);
-        else q.set(k, v);
-      });
-
-      // update the URL, client-side only
-      router.replace(`${window.location.pathname}?${q.toString()}`);
-    },
-    [params, router]
-  );
-
-  const fetchEventsByDate = useCallback(
-    async (y: string, m?: string, d?: string) => {
-      if (!y) return [];
-      try {
-        let path = `/api/events/${y}`;
-        if (m) path += `/${m}`;
-        if (d) path += `/${d}`;
-
-        const res = await fetch(path);
-        if (!res.ok) {
-          const body = await res.text();
-          throw new Error(`${res.status} ${body}`);
-        }
-        const data = await res.json();
-        return Array.isArray(data) ? data : [];
-      } catch (err) {
-        console.error(err);
-        setError(`Failed to fetch events — ${err}`);
-        return [];
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    []
-  );
-
-  /** ----------------------------------------------------------------
-   *  Effects: hydrate local state from URL on first render
-   *  ---------------------------------------------------------------- */
-  useEffect(() => {
-    const urlYear = params.get("year") || "";
-    const urlMonth = params.get("month") || "";
-    const urlDay = params.get("day") || "";
-    const urlSearch = params.get("search") || "";
-
-    // hydrate filter/search boxes
-    setYear(urlYear);
-    setMonth(urlMonth);
-    setDay(urlDay);
-    setSearch(urlSearch);
-
-    // If URL already has a year param, load it; otherwise default to today
-    if (urlYear) {
-      fetchEventsByDate(urlYear, urlMonth, urlDay).then(setEventList);
-    } else {
-      handleSearchTodaysEvents(); // pushes URL & loads data
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once
-
-  // Memo‑filtered list (search term)
-  const displayedEvents = useMemo(() => {
-    if (!deferredSearch.trim()) return eventList;
-    const kw = deferredSearch.toLowerCase();
-    return eventList.filter((e) => (e.title ?? "").toLowerCase().includes(kw));
-  }, [eventList, deferredSearch]);
-
-  /** ----------------------------------------------------------------
-   *  Event handlers
-   *  ---------------------------------------------------------------- */
-  const handleDateSearch = async () => {
-    const data = await fetchEventsByDate(year, month, day);
-    setEventList(data);
-    updateQuery({ year, month, day });
-    _setSortByDate(null);
-    _setSortByTitle(null);
-  };
-
-  const handleSearchChange = (val: string) => {
-    setSearch(val);
-    updateQuery({ search: val });
-  };
-
-  const handleSearchTodaysEvents = async () => {
-    const today = new Date();
-    const y = today.getFullYear().toString();
-    const m = String(today.getMonth() + 1).padStart(2, "0");
-    const d = String(today.getDate()).padStart(2, "0");
-
-    setYear(y);
-    setMonth(m);
-    setDay(d);
-
-    updateQuery({ year: y, month: m, day: d });
-
-    const data = await fetchEventsByDate(y, m, d);
-    setEventList(data);
-  };
-
-  /** sorting toggles */
   const setSortByDate = (o: "ASC" | "DESC" | null) => {
     _setSortByDate(o);
     if (o) _setSortByTitle(null);
@@ -152,37 +47,157 @@ export default function EventPage() {
     if (o) _setSortByDate(null);
   };
 
-  /** ----------------------------------------------------------------
-   *  JSX
-   *  ---------------------------------------------------------------- */
+  // — build API path and fetch
+  const fetchEvents = async (y: string, m?: string, d?: string) => {
+    setIsLoading(true);
+    let path = `/api/events/${y}`;
+    if (m) path += `/${m}`;
+    if (d) path += `/${d}`;
+    try {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+      const data = await res.json();
+      setEventList(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+      setError(`Failed to fetch events — ${err}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // — URL updater
+  const updateQuery = useCallback(
+    (updates: Record<string, string | null>) => {
+      const q = new URLSearchParams(params.toString());
+      Object.entries(updates).forEach(([k, v]) => {
+        if (!v) q.delete(k);
+        else q.set(k, v);
+      });
+      router.replace(`${window.location.pathname}?${q.toString()}`);
+    },
+    [params, router]
+  );
+
+  // — init from URL
+  useEffect(() => {
+    const uYear = params.get("year") || "";
+    const uMonth = params.get("month") || "";
+    const uDay = params.get("day") || "";
+    const uSearch = params.get("search") || "";
+
+    setSearch(uSearch);
+    setYear(uYear);
+    setMonth(uMonth);
+    setDay(uDay);
+
+    // if we have all three, full-date; else if year+month; else if year-only; else today
+    if (uYear && uMonth && uDay) {
+      const d = new Date(Number(uYear), Number(uMonth) - 1, Number(uDay));
+      setSelectedDate(d);
+      fetchEvents(uYear, uMonth, uDay);
+    } else if (uYear && uMonth) {
+      setSelectedDate(new Date(Number(uYear), Number(uMonth) - 1, 1));
+      fetchEvents(uYear, uMonth);
+    } else if (uYear) {
+      const today = new Date();
+      setSelectedDate(today);
+      fetchEvents(uYear);
+    } else {
+      // default → today
+      const now = new Date();
+      const y = now.getFullYear().toString();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      setYear(y);
+      setMonth(m);
+      setDay(d);
+      setSelectedDate(now);
+      fetchEvents(y, m, d);
+    }
+    // run only once
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // — handlers
+  const handleDateSearch = () => {
+    updateQuery({ year, month, day });
+    fetchEvents(year, month, day);
+  };
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    updateQuery({ search: val });
+  };
+  const handleSearchTodaysEvents = () => {
+    const now = new Date();
+    const y = now.getFullYear().toString();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    setYear(y);
+    setMonth(m);
+    setDay(d);
+    setSelectedDate(now);
+    updateQuery({ year: y, month: m, day: d });
+    fetchEvents(y, m, d);
+  };
+
+  // — filtered by title
+  const displayedEvents = useMemo(() => {
+    if (!deferredSearch.trim()) return eventList;
+    const kw = deferredSearch.toLowerCase();
+    return eventList.filter((e) => (e.title ?? "").toLowerCase().includes(kw));
+  }, [eventList, deferredSearch]);
+
   return (
     <div className={styles.page}>
       <LogoutButton />
 
+      {/* filters + today button */}
       <Flex width="100%" justify="space-between" align="center">
         <DateFilters
           year={year}
           month={month}
           day={day}
+          selectedDate={selectedDate}
           onYearChange={(y) => {
             setYear(y);
             setMonth("");
             setDay("");
+            setSelectedDate(new Date(Number(y), 0, 1));
           }}
           onMonthChange={(m) => {
             setMonth(m);
             setDay("");
+            setSelectedDate(
+              m && year ? new Date(Number(year), Number(m) - 1, 1) : null
+            );
           }}
-          onDayChange={setDay}
+          onDayChange={(d) => {
+            setDay(d);
+            if (year && month && d)
+              setSelectedDate(
+                new Date(Number(year), Number(month) - 1, Number(d))
+              );
+          }}
+          onDateChange={(d) => {
+            setSelectedDate(d);
+            if (d) {
+              const y = String(d.getFullYear());
+              const mo = String(d.getMonth() + 1).padStart(2, "0");
+              const da = String(d.getDate()).padStart(2, "0");
+              setYear(y);
+              setMonth(mo);
+              setDay(da);
+            }
+          }}
           onSearch={handleDateSearch}
         />
-
         <Button pattern="teal" onClick={handleSearchTodaysEvents}>
-          Today&apos;s Events
+          Today’s Events
         </Button>
       </Flex>
+
+      {/* title + count */}
       <Flex width="100%" justify="center" align="center" gap={2}>
-        {" "}
         <h2 className={styles.title}>Event Listings</h2>
         {isLoading ? (
           <Skeleton
@@ -193,12 +208,12 @@ export default function EventPage() {
             borderRadius={10}
           />
         ) : (
-          <h4>(Total:{eventList.length})</h4>
+          <h4>(Total: {eventList.length})</h4>
         )}
       </Flex>
 
+      {/* search box */}
       <div className={styles.searchBox}>
-        {" "}
         <SearchBox
           search={search}
           setSearch={handleSearchChange}
@@ -206,6 +221,7 @@ export default function EventPage() {
         />
       </div>
 
+      {/* list or loading */}
       <main className={styles.main}>
         {isLoading ? (
           <Skeleton count={20} height={30} duration={0.7} borderRadius={10} />
