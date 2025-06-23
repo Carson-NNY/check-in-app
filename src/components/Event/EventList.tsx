@@ -52,7 +52,13 @@ export default function EventList({
         >
           <Table variant="simple" maxHeight="400px">
             <TableCaption>Momath ~~~~~~</TableCaption>
-            <Thead position="sticky" top={0} bg="white" zIndex="docked">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="whiteAlpha.900"
+              backdropFilter="blur(4px)"
+              boxShadow="sm"
+            >
               <Tr>
                 <Th>event_id</Th>
                 <Th>

@@ -159,7 +159,13 @@ export default function EventParticipantList({
               setParticipants={setParticipantList}
             />
           </TableCaption>
-          <Thead position="sticky" top={0} bg="white" zIndex="docked">
+          <Thead
+            position="sticky"
+            top={0}
+            bg="whiteAlpha.900"
+            backdropFilter="blur(4px)"
+            boxShadow="sm"
+          >
             <Tr>
               <Th>
                 <SortByLetter
