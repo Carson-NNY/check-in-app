@@ -97,7 +97,7 @@ export default function EventParticipantList({
       filtered.unshift(updatedParticipant);
     }
 
-    // 5. Update state and fire your API call
+    // Update state and fire API call
     setParticipantList(filtered);
     handleUpdate(
       participant.id,
@@ -130,6 +130,17 @@ export default function EventParticipantList({
       _setSortByLastName(null);
       _setSortByFirstName(null);
     }
+  };
+
+  const formatPhone = (usRaw: string) => {
+    // strip out anything that isn’t a digit
+    const digits = usRaw.replace(/\D/g, "");
+    // format 10-digit numbers: 3-3-4
+    if (digits.length === 10) {
+      return digits.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3");
+    }
+    // fallback to whatever we got
+    return usRaw;
   };
 
   return (
@@ -167,7 +178,7 @@ export default function EventParticipantList({
                 </SortByLetter>
               </Th>
 
-              <Th>Contact</Th>
+              <Th>Phone</Th>
               <Th>
                 <SortByLetter
                   sortOrder={sortByStatus}
@@ -223,7 +234,11 @@ export default function EventParticipantList({
                     </Td>
                     <Td>
                       {participant["contact_id.phone_primary.phone_numeric"]
-                        ? participant["contact_id.phone_primary.phone_numeric"]
+                        ? formatPhone(
+                            participant[
+                              "contact_id.phone_primary.phone_numeric"
+                            ]
+                          )
                         : "None"}
                     </Td>
                     <Td>

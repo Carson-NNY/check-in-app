@@ -28,10 +28,10 @@ export default function RootLayout({
     <html suppressHydrationWarning className={`${inter.variable}`}>
       <body>
         <ChakraProvider>
-          <main className="min-h-screen flex flex-col">
-            {children}
-            <Footer />
-          </main>
+          {/* <main className="min-h-screen flex flex-col"> */}
+          {children}
+          <Footer />
+          {/* </main> */}
         </ChakraProvider>
       </body>
     </html>

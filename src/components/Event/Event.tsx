@@ -12,6 +12,7 @@ import Button from "../Button/Button";
 import LogoutButton from "@/components/Button/LogoutButton";
 import { Flex } from "@chakra-ui/react";
 import Skeleton from "react-loading-skeleton";
+import { SkeletonCircle } from "@chakra-ui/react";
 import "react-loading-skeleton/dist/skeleton.css";
 
 export default function EventPage() {
@@ -26,7 +27,7 @@ export default function EventPage() {
 
   const [eventList, setEventList] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [sortByDate, _setSortByDate] = useState<"ASC" | "DESC" | null>(null);
   const [sortByTitle, _setSortByTitle] = useState<"ASC" | "DESC" | null>(null);
@@ -55,8 +56,6 @@ export default function EventPage() {
   const fetchEventsByDate = useCallback(
     async (y: string, m?: string, d?: string) => {
       if (!y) return [];
-
-      setIsLoading(true);
       try {
         let path = `/api/events/${y}`;
         if (m) path += `/${m}`;
@@ -182,7 +181,22 @@ export default function EventPage() {
           Today&apos;s Events
         </Button>
       </Flex>
-      <h2 className={styles.title}>Event Listings</h2>
+      <Flex width="100%" justify="center" align="center" gap={2}>
+        {" "}
+        <h2 className={styles.title}>Event Listings</h2>
+        {isLoading ? (
+          <Skeleton
+            count={1}
+            height={20}
+            width={65}
+            duration={0.7}
+            borderRadius={10}
+          />
+        ) : (
+          <h4>(Total:{eventList.length})</h4>
+        )}
+      </Flex>
+
       <div className={styles.searchBox}>
         {" "}
         <SearchBox

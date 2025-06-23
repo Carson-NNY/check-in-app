@@ -11,9 +11,9 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Box } from "@chakra-ui/react";
 import Button from "@/components/Button/Button";
+import { SkeletonCircle } from "@chakra-ui/react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { MdAccountBox } from "react-icons/md";
 
 import {
   Stat,
@@ -45,7 +45,7 @@ export default function EventParticipants() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 500);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const router = useRouter();
 
@@ -78,7 +78,6 @@ export default function EventParticipants() {
 
     const fetchData = async () => {
       try {
-        setIsLoading(true);
         // make the API call from the server side
         const response = await fetch(`/api/eventParticipants/${eventId}`);
         if (!response.ok) {
@@ -130,63 +129,81 @@ export default function EventParticipants() {
         <Box width="100%" display="flex" justifyContent="center" mb={4}>
           <StatGroup width="70%" maxWidth="600px">
             <Stat>
-              <StatLabel>Total Participants</StatLabel>
-              <StatNumber>{participants.length}</StatNumber>
-              <StatHelpText></StatHelpText>
+              <StatLabel>Total </StatLabel>
+
+              {isLoading ? (
+                <SkeletonCircle size="10" />
+              ) : (
+                <>
+                  <StatNumber>{participants.length}</StatNumber>
+                </>
+              )}
             </Stat>
 
             <Stat>
-              <StatLabel>Checked in</StatLabel>
-              <StatNumber>{checkedInParticipantCount}</StatNumber>
-              <StatHelpText>
-                {/* <StatArrow type="decrease" /> */}
-                {checkedInParticipantCount / participants.length > 0.5 ? (
-                  <>
-                    <StatArrow type="increase" />
-                    {(
-                      (checkedInParticipantCount / participants.length) *
-                      100
-                    ).toFixed(2)}
-                    %
-                  </>
-                ) : (
-                  <>
-                    <StatArrow type="decrease" />
-                    {(
-                      (checkedInParticipantCount / participants.length) *
-                      100
-                    ).toFixed(2)}
-                    %
-                  </>
-                )}
-              </StatHelpText>
+              <StatLabel>Checked</StatLabel>
+              {isLoading ? (
+                <SkeletonCircle size="10" />
+              ) : (
+                <>
+                  <StatNumber>{checkedInParticipantCount}</StatNumber>
+                  <StatHelpText>
+                    {/* <StatArrow type="decrease" /> */}
+                    {checkedInParticipantCount / participants.length > 0.5 ? (
+                      <>
+                        <StatArrow type="increase" />
+                        {(
+                          (checkedInParticipantCount / participants.length) *
+                          100
+                        ).toFixed(2)}
+                        %
+                      </>
+                    ) : (
+                      <>
+                        <StatArrow type="decrease" />
+                        {(
+                          (checkedInParticipantCount / participants.length) *
+                          100
+                        ).toFixed(2)}
+                        %
+                      </>
+                    )}
+                  </StatHelpText>
+                </>
+              )}
             </Stat>
 
             <Stat>
-              <StatLabel>Unchecked in</StatLabel>
-              <StatNumber>{uncheckedInParticipantCount}</StatNumber>
-              <StatHelpText>
-                {/* <StatArrow type="decrease" /> */}
-                {uncheckedInParticipantCount / participants.length > 0.5 ? (
-                  <>
-                    <StatArrow type="increase" />
-                    {(
-                      (uncheckedInParticipantCount / participants.length) *
-                      100
-                    ).toFixed(2)}
-                    %
-                  </>
-                ) : (
-                  <>
-                    <StatArrow type="decrease" />
-                    {(
-                      (uncheckedInParticipantCount / participants.length) *
-                      100
-                    ).toFixed(2)}
-                    %
-                  </>
-                )}
-              </StatHelpText>
+              <StatLabel>Unchecked</StatLabel>
+              {isLoading ? (
+                <SkeletonCircle size="10" />
+              ) : (
+                <>
+                  <StatNumber>{uncheckedInParticipantCount}</StatNumber>
+                  <StatHelpText>
+                    {/* <StatArrow type="decrease" /> */}
+                    {uncheckedInParticipantCount / participants.length > 0.5 ? (
+                      <>
+                        <StatArrow type="increase" />
+                        {(
+                          (uncheckedInParticipantCount / participants.length) *
+                          100
+                        ).toFixed(2)}
+                        %
+                      </>
+                    ) : (
+                      <>
+                        <StatArrow type="decrease" />
+                        {(
+                          (uncheckedInParticipantCount / participants.length) *
+                          100
+                        ).toFixed(2)}
+                        %
+                      </>
+                    )}
+                  </StatHelpText>
+                </>
+              )}
             </Stat>
           </StatGroup>
         </Box>

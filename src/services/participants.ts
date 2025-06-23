@@ -50,7 +50,6 @@ export async function fetchAllParticipants() {
   }
 }
 
-// if
 export async function fetchParticipantByEventId(eventId: any) {
   try {
     const res = await fetch(PARTICIPANT_GET_URL, {
