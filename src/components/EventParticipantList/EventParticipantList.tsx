@@ -148,6 +148,7 @@ export default function EventParticipantList({
       <TableContainer
         maxH="800px"
         overflowY="auto"
+        overflowX="hidden"
         border="1px solid"
         borderColor="gray.200"
         borderRadius="md"
@@ -253,15 +254,22 @@ export default function EventParticipantList({
                           )
                         : "None"}
                     </Td>
-                    <Td>
-                      {currentStatus} -{" "}
+                    <Td
+                      maxW="180px"
+                      width="180px"
+                      whiteSpace="normal"
+                      wordBreak="break-word"
+                    >
+                      {currentStatus}{" "}
                       {currentStatus === "Attended" ? (
-                        <span style={{ marginLeft: "6px" }}>
+                        <span
+                        // style={{ marginLeft: "6px" }}
+                        >
                           <Button
                             pattern="grey"
                             onClick={() => handleCheckInClick(participant)}
                           >
-                            &nbsp;&nbsp; Revert &nbsp;
+                            &nbsp; Revert &nbsp;
                           </Button>
                         </span>
                       ) : (
