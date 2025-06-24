@@ -19,7 +19,10 @@ export async function POST(
   } catch (error) {
     console.error("Error in /api/statusUpdate/[...data]", error);
     return NextResponse.json(
-      { error: "Failed to update participant status" },
+      {
+        error:
+          "Failed to update participant status in /api/statusUpdate/[...data]",
+      },
       { status: 500 }
     );
   }

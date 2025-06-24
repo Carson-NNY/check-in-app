@@ -47,7 +47,7 @@ export default function EventPage() {
     if (o) _setSortByDate(null);
   };
 
-  // — build API path and fetch
+  // — build API path and fetch based on date
   const fetchEvents = async (y: string, m?: string, d?: string) => {
     setIsLoading(true);
     let path = `/api/events/${y}`;
@@ -116,7 +116,7 @@ export default function EventPage() {
       fetchEvents(y, m, d);
     }
     // run only once
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // — handlers
   const handleDateSearch = () => {

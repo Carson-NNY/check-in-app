@@ -13,7 +13,6 @@ const HEADER = {
 };
 
 const API_KEY = process.env.CIVICRM_API_KEY || "";
-
 // not currently used, but could be useful for other features
 export async function fetchAllParticipants() {
   try {

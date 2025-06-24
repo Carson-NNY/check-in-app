@@ -72,7 +72,9 @@ export default function EventParticipantList({
         position: "top",
       });
     } catch (err) {
-      setError(`Error updating check-in status: ${err}`);
+      setError(
+        `${err}, Error updating check-in status in /api/statusUpdate/[...data]`
+      );
       console.error(err);
     }
   };

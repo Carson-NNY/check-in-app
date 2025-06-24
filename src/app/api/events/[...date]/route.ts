@@ -62,7 +62,6 @@ export async function GET(
   } catch (error) {
     console.error("Error in /api/events/[...date]", error);
     return NextResponse.json(
-      // { error: "Failed to load events" },
       { error: `Error in /api/events/[...date] — ${error}` },
       { status: 500 }
     );
