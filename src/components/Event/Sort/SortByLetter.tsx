@@ -50,22 +50,27 @@ export default function SortByLettparticipantStatuser({
             bKey = b["contact_id.last_name"] ?? "";
             break;
           case "participantStatus":
-            aKey = a["status_id:label"] ?? "";
-            bKey = b["status_id:label"] ?? "";
-            // define the custom order for ASC (Registered first, Attended second for better check-in efficiency)
-            const orderAsc = ["Registered", "Attended"];
-            // any unknown statuses go to the bottom
-            const defaultRank = orderAsc.length;
-            const aRank =
-              orderAsc.indexOf(aKey) !== -1
-                ? orderAsc.indexOf(aKey)
-                : defaultRank;
-            const bRank =
-              orderAsc.indexOf(bKey) !== -1
-                ? orderAsc.indexOf(bKey)
-                : defaultRank;
+            const aStatus = a["status_id:label"] ?? "";
+            const bStatus = b["status_id:label"] ?? "";
 
-            return next === "ASC" ? aRank - bRank : bRank - aRank;
+            if (next === "ASC") {
+              // 1) Attended always at the bottom when sorting ASC:
+              if (aStatus === "Attended" && bStatus !== "Attended") return 1;
+              if (bStatus === "Attended" && aStatus !== "Attended") return -1;
+              // 2) Otherwise sort everyone else alphabetically:
+              return aStatus.localeCompare(bStatus, undefined, {
+                ignorePunctuation: true,
+              });
+            } else {
+              // DESC: Attended always at the top
+              if (aStatus === "Attended" && bStatus !== "Attended") return -1;
+              if (bStatus === "Attended" && aStatus !== "Attended") return 1;
+              // Then reverse-alphabetical for the rest:
+              return bStatus.localeCompare(aStatus, undefined, {
+                ignorePunctuation: true,
+              });
+            }
+
           default:
             return 0; // no sorting if we don’t recognize the key
         }
