@@ -1,10 +1,13 @@
-const EVENT_GET_URL = "https://sandbox.momath.org/civicrm/ajax/api4/Event/get";
+// construct the URLs and headers
+const EVENT_GET_URL = process.env.CIVICRM_BASE_URL + "/Event/get";
+const API_KEY = process.env.CIVICRM_API_KEY || "";
+
 const HEADER = {
   "Content-Type": "application/x-www-form-urlencoded",
   "X-Requested-With": "XMLHttpRequest",
 };
-const API_KEY = process.env.CIVICRM_API_KEY || "";
 
+// (not currently in use) Fetch existing events (limit 20)
 export async function fetchEvents() {
   try {
     const res = await fetch(EVENT_GET_URL, {
@@ -31,6 +34,7 @@ export async function fetchEvents() {
   }
 }
 
+// Fetch existing events by date range (start, end in "YYYY-MM-DD" format)
 export async function fetchEventsByDateRange(start: string, end: string) {
   try {
     const res = await fetch(EVENT_GET_URL, {

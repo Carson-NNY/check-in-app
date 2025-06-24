@@ -38,6 +38,7 @@ export default function EventPage() {
   // — sorting
   const [sortByDate, _setSortByDate] = useState<"ASC" | "DESC" | null>(null);
   const [sortByTitle, _setSortByTitle] = useState<"ASC" | "DESC" | null>(null);
+
   const setSortByDate = (o: "ASC" | "DESC" | null) => {
     _setSortByDate(o);
     if (o) _setSortByTitle(null);
@@ -87,9 +88,7 @@ export default function EventPage() {
     const uSearch = params.get("search") || "";
 
     setSearch(uSearch);
-    setYear(uYear);
-    setMonth(uMonth);
-    setDay(uDay);
+    setYearMonthDay(uYear, uMonth, uDay);
 
     // if we have all three, full-date; else if year+month; else if year-only; else today
     if (uYear && uMonth && uDay) {
@@ -106,38 +105,37 @@ export default function EventPage() {
     } else {
       // default → today
       const now = new Date();
-      const y = now.getFullYear().toString();
+      const y = String(now.getFullYear());
       const m = String(now.getMonth() + 1).padStart(2, "0");
       const d = String(now.getDate()).padStart(2, "0");
-      setYear(y);
-      setMonth(m);
-      setDay(d);
+      setYearMonthDay(y, m, d);
       setSelectedDate(now);
       fetchEvents(y, m, d);
     }
     // run only once
   }, []);
 
-  // — handlers
+  // — handlers for date filters
   const handleDateSearch = () => {
     updateQuery({ year, month, day });
     fetchEvents(year, month, day);
   };
-  const handleSearchChange = (val: string) => {
-    setSearch(val);
-    updateQuery({ search: val });
-  };
+
   const handleSearchTodaysEvents = () => {
     const now = new Date();
-    const y = now.getFullYear().toString();
+    const y = String(now.getFullYear());
     const m = String(now.getMonth() + 1).padStart(2, "0");
     const d = String(now.getDate()).padStart(2, "0");
-    setYear(y);
-    setMonth(m);
-    setDay(d);
+    setYearMonthDay(y, m, d);
     setSelectedDate(now);
     updateQuery({ year: y, month: m, day: d });
     fetchEvents(y, m, d);
+  };
+
+  // — search box handler
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    updateQuery({ search: val });
   };
 
   // — filtered by title
@@ -146,6 +144,13 @@ export default function EventPage() {
     const kw = deferredSearch.toLowerCase();
     return eventList.filter((e) => (e.title ?? "").toLowerCase().includes(kw));
   }, [eventList, deferredSearch]);
+
+  // reusable function to set year, month, and day
+  const setYearMonthDay = (y: string, m?: string, d?: string) => {
+    setYear(y);
+    setMonth(m || "");
+    setDay(d || "");
+  };
 
   return (
     <div className={styles.page}>
@@ -159,9 +164,7 @@ export default function EventPage() {
           day={day}
           selectedDate={selectedDate}
           onYearChange={(y) => {
-            setYear(y);
-            setMonth("");
-            setDay("");
+            setYearMonthDay(y);
             setSelectedDate(new Date(Number(y), 0, 1));
           }}
           onMonthChange={(m) => {
@@ -182,9 +185,7 @@ export default function EventPage() {
               const y = String(d.getFullYear());
               const mo = String(d.getMonth() + 1).padStart(2, "0");
               const da = String(d.getDate()).padStart(2, "0");
-              setYear(y);
-              setMonth(mo);
-              setDay(da);
+              setYearMonthDay(y, mo, da);
             }
           }}
           onSearch={handleDateSearch}
@@ -219,7 +220,7 @@ export default function EventPage() {
         />
       </div>
 
-      {/* list or loading */}
+      {/* event list or loading via Skeleton */}
       <main className={styles.main}>
         {isLoading ? (
           <Skeleton count={20} height={30} duration={0.7} borderRadius={10} />

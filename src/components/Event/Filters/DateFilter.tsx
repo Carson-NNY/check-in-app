@@ -32,7 +32,7 @@ export default function DateFilters({
 
   return (
     <Flex gap={2} align="center">
-      {/* search icon */}
+      {/* search button */}
       <IconButton
         aria-label="Search"
         icon={<BsSearch />}

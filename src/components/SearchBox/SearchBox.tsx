@@ -13,6 +13,7 @@ type SearchBoxProps = {
   placeholder: string;
 };
 
+// A resuable search box component with a search icon and a clear button
 export default function SearchBox({
   search,
   setSearch,
@@ -32,7 +33,6 @@ export default function SearchBox({
         placeholder={placeholder}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        // width="520px"
         variant="filled"
         size="lg"
         paddingRight="48px"

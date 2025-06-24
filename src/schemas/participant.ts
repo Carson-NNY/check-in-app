@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// Schema for new participant input
 export const ParticipantSchema = z
   .object({
     eventId: z.string().nonempty("eventId is required"),

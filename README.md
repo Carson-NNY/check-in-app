@@ -37,7 +37,13 @@
    git clone https://github.com/MoMath1/momath.tech.check-in-system.git
    ```
 
-2. **Install dependencies**
+2. **Create and set enviornment variables in .env.local under root directory**
+   ```bash
+   MOMATH_CHECKIN_PASSWORD=<Password for login page>
+   CIVICRM_API_KEY=<CIVI API KEY>
+   CIVICRM_BASE_URL=https://sandbox.momath.org/civicrm/ajax/api4
+   ```
+3. **Install dependencies**
 
    ```bash
    npm install
@@ -47,7 +53,7 @@
    pnpm install
    ```
 
-3. **Add peer packages**
+4. **Add peer packages**
 
    ```bash
    npm install @chakra-ui/react @emotion/react @emotion/styled framer-motion
@@ -56,7 +62,7 @@
    npm install react-datepicker
    ```
 
-4. **Run the dev server**
+5. **Run the dev server**
 
    ```bash
    npm run dev
@@ -68,14 +74,14 @@
    bun dev
    ```
 
-5. **Build for production**
+6. **Build for production**
 
    ```bash
    npm run build
    pm2 start npm --name momath -- run start -- -H 0.0.0.0
    ```
 
-6. **Run for production(pm2)**
+7. **Run for production(pm2)**
 
    ```bash
    pm2 start npm --name momath -- run start -- -H 0.0.0.0

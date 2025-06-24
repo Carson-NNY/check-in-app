@@ -8,9 +8,9 @@ type SortByLetterProps = {
   sortList: any[];
   setSortList: (events: any[]) => void;
   sortOrder: SortByLetter;
-  setSortOrder: (sortBy: SortByLetter) => void;
-  sortTarget:
-    | "eventTitle"
+  setSortOrder: (sortBy: SortByLetter) => void; // we need to update the new sort order so the ASC/DESC icon can be displayed correctly
+  sortTarget: // identify which key in the object we want to sort by
+  | "eventTitle"
     | "participantFirstName"
     | "participantLastName"
     | "participantStatus";
@@ -26,64 +26,60 @@ export default function SortByLettparticipantStatuser({
   children,
 }: SortByLetterProps) {
   const handleSort = () => {
-    // 1) choose the next sort state
+    // choose the next sort state
     const next: SortByLetter =
       sortOrder === null ? "ASC" : sortOrder === "ASC" ? "DESC" : "ASC";
     setSortOrder(next);
 
-    // 2) reorder (or reset) the array based on the next sort state and the target field
     setSortList(
       [...sortList].sort((a, b) => {
+        //  pick the two strings we want to compare
+        let aKey: string, bKey: string;
+
         switch (sortTarget) {
           case "eventTitle":
-            const aTitle = a.title.toLowerCase();
-            const bTitle = b.title.toLowerCase();
-
-            return next === "ASC"
-              ? aTitle.localeCompare(bTitle, undefined, {
-                  ignorePunctuation: true,
-                })
-              : bTitle.localeCompare(aTitle, undefined, {
-                  ignorePunctuation: true,
-                });
+            aKey = a.title ?? "";
+            bKey = b.title ?? "";
+            break;
           case "participantFirstName":
-            const aFirstName = a["contact_id.first_name"].toLowerCase();
-            const bFirstName = b["contact_id.first_name"].toLowerCase();
-            return next === "ASC"
-              ? aFirstName.localeCompare(bFirstName, undefined, {
-                  ignorePunctuation: true,
-                })
-              : bFirstName.localeCompare(aFirstName, undefined, {
-                  ignorePunctuation: true,
-                });
+            aKey = a["contact_id.first_name"] ?? "";
+            bKey = b["contact_id.first_name"] ?? "";
+            break;
           case "participantLastName":
-            const aLastName = a["contact_id.last_name"].toLowerCase();
-            const bLastName = b["contact_id.last_name"].toLowerCase();
-            return next === "ASC"
-              ? aLastName.localeCompare(bLastName, undefined, {
-                  ignorePunctuation: true,
-                })
-              : bLastName.localeCompare(aLastName, undefined, {
-                  ignorePunctuation: true,
-                });
+            aKey = a["contact_id.last_name"] ?? "";
+            bKey = b["contact_id.last_name"] ?? "";
+            break;
           case "participantStatus":
-            const aStatus = a["status_id:label"].toLowerCase();
-            const bStatus = b["status_id:label"].toLowerCase();
-            // use DSEC here since we want the first click of the currentStatus button to sort
-            // the list so that the "Attended" status is at the bottom of the list (green check-in button on the top)
-            return next === "DESC"
-              ? aStatus.localeCompare(bStatus, undefined, {
-                  ignorePunctuation: true,
-                })
-              : bStatus.localeCompare(aStatus, undefined, {
-                  ignorePunctuation: true,
-                });
+            aKey = a["status_id:label"] ?? "";
+            bKey = b["status_id:label"] ?? "";
+            // define the custom order for ASC (Registered first, Attended second for better check-in efficiency)
+            const orderAsc = ["Registered", "Attended"];
+            // any unknown statuses go to the bottom
+            const defaultRank = orderAsc.length;
+            const aRank =
+              orderAsc.indexOf(aKey) !== -1
+                ? orderAsc.indexOf(aKey)
+                : defaultRank;
+            const bRank =
+              orderAsc.indexOf(bKey) !== -1
+                ? orderAsc.indexOf(bKey)
+                : defaultRank;
+
+            return next === "ASC" ? aRank - bRank : bRank - aRank;
           default:
-            console.warn(
-              `SortByTitle: Unknown sort target "${sortTarget}". Defaulting to no sort.`
-            );
-            return 0; // no sort
+            return 0; // no sorting if we don’t recognize the key
         }
+        // Normalize to lowercase for a case-insensitive compare
+        aKey = aKey.toLowerCase();
+        bKey = bKey.toLowerCase();
+
+        // empty goes to bottom:
+        if (!aKey && bKey) return 1; // a is empty, b is not ⇒ a should come _after_
+        if (!bKey && aKey) return -1;
+
+        return next === "ASC"
+          ? aKey.localeCompare(bKey, undefined, { ignorePunctuation: true })
+          : bKey.localeCompare(aKey, undefined, { ignorePunctuation: true });
       })
     );
   };

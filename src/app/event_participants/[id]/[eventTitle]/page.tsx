@@ -25,10 +25,12 @@ import {
 } from "@chakra-ui/react";
 
 export default function EventParticipants() {
+  // Get eventId and eventTitle from the URL parameters
   const params = useParams();
   const rawId = params.id;
   const rawTitle = params.eventTitle;
 
+  // Handle the case where params.id or params.eventTitle might be an array or undefined
   const eventId = Array.isArray(rawId) ? rawId[0] : rawId ?? "";
   const eventTitle = Array.isArray(rawTitle)
     ? rawTitle[0]
@@ -44,11 +46,13 @@ export default function EventParticipants() {
 
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
+  // we need to debounce the search input to avoid excessive filtering
   const debouncedSearch = useDebounce(search, 500);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const router = useRouter();
 
+  // Filter participants based on the debounced search term
   const displayedParticipants = useMemo(() => {
     if (debouncedSearch.trim() === "") return participants;
 
@@ -63,6 +67,7 @@ export default function EventParticipants() {
     });
   }, [participants, debouncedSearch]);
 
+  // Update checked-in and unchecked-in counts whenever participants change
   useEffect(() => {
     if (participants.length === 0) return;
     setCheckedInParticipantCount(
@@ -75,7 +80,6 @@ export default function EventParticipants() {
 
   useEffect(() => {
     if (!eventId) return;
-
     const fetchData = async () => {
       try {
         // make the API call from the server side
@@ -101,6 +105,7 @@ export default function EventParticipants() {
   return (
     <div className={styles.page}>
       <Box position="fixed" top={4} left={1} zIndex="overlay">
+        {/* back bubtton */}
         <Button
           pattern="blueOutline"
           onClick={() => router.back()}
@@ -130,6 +135,7 @@ export default function EventParticipants() {
           placeholder="Search by names"
         />
 
+        {/* display Total/Checked/Unchecked number and percentage */}
         <Box width="100%" display="flex" justifyContent="center" mb={4}>
           <StatGroup width="70%" maxWidth="600px">
             <Stat>
@@ -152,7 +158,6 @@ export default function EventParticipants() {
                 <>
                   <StatNumber>{checkedInParticipantCount}</StatNumber>
                   <StatHelpText>
-                    {/* <StatArrow type="decrease" /> */}
                     {checkedInParticipantCount / participants.length > 0.5 ? (
                       <>
                         <StatArrow type="increase" />
@@ -185,7 +190,6 @@ export default function EventParticipants() {
                 <>
                   <StatNumber>{uncheckedInParticipantCount}</StatNumber>
                   <StatHelpText>
-                    {/* <StatArrow type="decrease" /> */}
                     {uncheckedInParticipantCount / participants.length > 0.5 ? (
                       <>
                         <StatArrow type="increase" />
@@ -219,9 +223,9 @@ export default function EventParticipants() {
         <>
           <ErrorMessage error={error} setError={setError} />
           <EventParticipantList
-            participantList={displayedParticipants}
+            displayedParticipants={displayedParticipants}
             originalParticipantList={participants}
-            setParticipantList={setParticipants}
+            setOriginalParticipantList={setParticipants}
             setError={setError}
             highlight={search}
             eventId={eventId || ""}

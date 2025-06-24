@@ -13,6 +13,7 @@ type ErrorMessageProps = {
   setError: (error: string | null) => void;
 };
 
+// A component to display error messages in an alert box when there's an error (error prop is not null)
 export default function ErrorMessage({ error, setError }: ErrorMessageProps) {
   const { onClose } = useDisclosure({ defaultIsOpen: false });
 

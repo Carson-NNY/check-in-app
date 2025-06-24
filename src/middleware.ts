@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 
 const PUBLIC_PATHS = ["/login", "/favicon.ico"];
 
+// A middleware to protect routes that require authentication
 export function middleware(req: NextRequest) {
   const isPublic = PUBLIC_PATHS.some((path) =>
     req.nextUrl.pathname.startsWith(path)

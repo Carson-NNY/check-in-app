@@ -5,6 +5,7 @@ type HighlightProps = {
   highlight: string;
 };
 
+// A component to highlight search terms in a given text
 export function HighlightComponent({ text, highlight }: HighlightProps) {
   return (
     <>

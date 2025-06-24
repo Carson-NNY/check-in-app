@@ -26,6 +26,7 @@ type EventListProps = {
   setSortByDate: (sortBy: sortByType) => void;
 };
 
+//  render a list of events in Table component from Chakra UI
 export default function EventList({
   events,
   highlight,

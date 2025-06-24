@@ -1,11 +1,11 @@
 import { fetchContactByName, createContact } from "./contacts";
 
-const PARTICIPANT_GET_URL =
-  "https://sandbox.momath.org/civicrm/ajax/api4/Participant/get";
+// construct the URLs and headers
+const PARTICIPANT_GET_URL = process.env.CIVICRM_BASE_URL + "/Participant/get";
 const PARTICIPANT_UPDATE_URL =
-  "https://sandbox.momath.org/civicrm/ajax/api4/Participant/update";
+  process.env.CIVICRM_BASE_URL + "/Participant/update";
 const PARTICIPANT_CREATE_URL =
-  "https://sandbox.momath.org/civicrm/ajax/api4/Participant/create";
+  process.env.CIVICRM_BASE_URL + "/Participant/create";
 
 const HEADER = {
   "Content-Type": "application/x-www-form-urlencoded",
@@ -13,7 +13,8 @@ const HEADER = {
 };
 
 const API_KEY = process.env.CIVICRM_API_KEY || "";
-// not currently used, but could be useful for other features
+
+// Fetch all participants.  not currently used, but could be useful for other features
 export async function fetchAllParticipants() {
   try {
     const res = await fetch(PARTICIPANT_GET_URL, {
@@ -49,6 +50,7 @@ export async function fetchAllParticipants() {
   }
 }
 
+// Fetch participants by event ID
 export async function fetchParticipantByEventId(eventId: any) {
   try {
     const res = await fetch(PARTICIPANT_GET_URL, {
@@ -88,6 +90,7 @@ export async function fetchParticipantByEventId(eventId: any) {
   }
 }
 
+// Fetch participants by event ID
 export async function fetchParticipantById(participantId: string) {
   try {
     const res = await fetch(PARTICIPANT_GET_URL, {
@@ -125,6 +128,7 @@ export async function fetchParticipantById(participantId: string) {
   }
 }
 
+// Update participant status.
 // Note: the res reponded by server is always 200, even if the update failed
 export async function updateParticipantStatusAttended(
   participantId: string,
@@ -158,6 +162,7 @@ export async function updateParticipantStatusAttended(
   }
 }
 
+// Create a new participant.  If the contact does not exist, create a new contact first.
 export async function createParticipant(data: {
   eventId: string;
   status: string;

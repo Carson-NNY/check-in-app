@@ -1,16 +1,14 @@
-const CONTACT_CREATE_URL =
-  "https://sandbox.momath.org/civicrm/ajax/api4/Contact/create";
-
-const CONTACT_GET_URL =
-  "https://sandbox.momath.org/civicrm/ajax/api4/Contact/get";
+// construct the URLs and headers
+const CONTACT_CREATE_URL = process.env.CIVICRM_BASE_URL + "/Contact/create";
+const CONTACT_GET_URL = process.env.CIVICRM_BASE_URL + "/Contact/get";
+const API_KEY = process.env.CIVICRM_API_KEY || "";
 
 const HEADER = {
   "Content-Type": "application/x-www-form-urlencoded",
   "X-Requested-With": "XMLHttpRequest",
 };
 
-const API_KEY = process.env.CIVICRM_API_KEY || "";
-
+// create a new contact
 export async function createContact(data: {
   lastName: string;
   firstName: string;
@@ -53,6 +51,7 @@ export async function createContact(data: {
   }
 }
 
+// fetch existing contact by first and last name
 export async function fetchContactByName(firstName: string, lastName: string) {
   try {
     const res = await fetch(CONTACT_GET_URL, {

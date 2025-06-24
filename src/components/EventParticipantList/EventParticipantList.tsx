@@ -19,24 +19,26 @@ import {
 } from "@chakra-ui/react";
 
 type Participant = {
-  participantList: any[];
+  displayedParticipants: any[];
   originalParticipantList: any[];
-  setParticipantList: React.Dispatch<React.SetStateAction<any[]>>;
+  setOriginalParticipantList: React.Dispatch<React.SetStateAction<any[]>>;
   setError: (error: string | null) => void;
   highlight: string;
   eventId: string;
 };
 
 export default function EventParticipantList({
-  participantList,
+  displayedParticipants,
   originalParticipantList,
-  setParticipantList,
+  setOriginalParticipantList,
   setError,
   highlight,
   eventId,
 }: Participant) {
+  // for toast notifications
   const toast = useToast();
 
+  // we use _setSortByX to avoid confusion with the setter functions we expose that also reset other sort states
   const [sortByFirstName, _setSortByFirstName] = useState<
     "ASC" | "DESC" | null
   >(null);
@@ -48,6 +50,7 @@ export default function EventParticipantList({
     null
   );
 
+  // API call to update participant status
   const handleUpdate = async (
     id: string,
     status: string,
@@ -63,6 +66,7 @@ export default function EventParticipantList({
         setError(`Failed to update status: ${res.statusText}`);
         throw new Error(`HTTP ${res.status}`);
       }
+      // show success toast if successful
       toast({
         title: "Success!",
         description: `${first_name} ${last_name} has been ${action} successfully.`,
@@ -84,7 +88,7 @@ export default function EventParticipantList({
   // behave differently for undo and check-in, we use optimistic update here and would roll back if API fails
   const handleCheckInClick = async (participant: any) => {
     // remember the original list in case we need to revert when request fails
-    const prevList = [...participantList];
+    const prevList = [...displayedParticipants];
     const newStatus =
       participant["status_id:label"] === "Attended" ? "Registered" : "Attended";
 
@@ -103,7 +107,7 @@ export default function EventParticipantList({
         : [updatedParticipant, ...without];
 
     // Update state
-    setParticipantList(nextList);
+    setOriginalParticipantList(nextList);
 
     // fire API call
     const isSuccess = await handleUpdate(
@@ -116,10 +120,11 @@ export default function EventParticipantList({
 
     // revert state if error
     if (isSuccess == false) {
-      setParticipantList(prevList);
+      setOriginalParticipantList(prevList);
     }
   };
 
+  // - reset other sort states when one is set
   const setSortByFirstName = (o: "ASC" | "DESC" | null) => {
     _setSortByFirstName(o);
     if (o) {
@@ -144,6 +149,7 @@ export default function EventParticipantList({
     }
   };
 
+  // format US phone numbers to xxx-xxx-xxxx
   const formatPhone = (usRaw: string) => {
     // strip out anything that isn’t a digit
     const digits = usRaw.replace(/\D/g, "");
@@ -169,7 +175,7 @@ export default function EventParticipantList({
           <TableCaption>
             <ParticipantDrawer
               eventId={eventId}
-              setParticipants={setParticipantList}
+              setParticipants={setOriginalParticipantList}
             />
           </TableCaption>
           <Thead
@@ -184,8 +190,8 @@ export default function EventParticipantList({
                 <SortByLetter
                   sortOrder={sortByFirstName}
                   setSortOrder={setSortByFirstName}
-                  sortList={participantList}
-                  setSortList={setParticipantList}
+                  sortList={displayedParticipants}
+                  setSortList={setOriginalParticipantList}
                   sortTarget="participantFirstName"
                 >
                   First Name
@@ -195,8 +201,8 @@ export default function EventParticipantList({
                 <SortByLetter
                   sortOrder={sortByLastName}
                   setSortOrder={setSortByLastname}
-                  sortList={participantList}
-                  setSortList={setParticipantList}
+                  sortList={displayedParticipants}
+                  setSortList={setOriginalParticipantList}
                   sortTarget="participantLastName"
                 >
                   Last Name
@@ -208,8 +214,8 @@ export default function EventParticipantList({
                 <SortByLetter
                   sortOrder={sortByStatus}
                   setSortOrder={setSortByStatus}
-                  sortList={participantList}
-                  setSortList={setParticipantList}
+                  sortList={displayedParticipants}
+                  setSortList={setOriginalParticipantList}
                   sortTarget="participantStatus"
                 >
                   currentStatus
@@ -218,12 +224,12 @@ export default function EventParticipantList({
             </Tr>
           </Thead>
           <Tbody>
-            {participantList.length === 0 ? (
+            {displayedParticipants.length === 0 ? (
               <Tr>
                 <Td colSpan={3}>No participants found.</Td>
               </Tr>
             ) : (
-              participantList.map((participant: any, index) => {
+              displayedParticipants.map((participant: any, index) => {
                 const currentStatus = participant["status_id:label"];
                 return (
                   <Tr key={index}>
