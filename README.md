@@ -1,3 +1,5 @@
+# MoMath Check-in
+
 ## Table of Contents
 
 - [Technologies](#technologies)
@@ -32,8 +34,7 @@
 1. **Clone the repo**
 
    ```bash
-   git clone <repo-url>
-   cd <project-directory>
+   git clone https://github.com/MoMath1/momath.tech.check-in-system.git
    ```
 
 2. **Install dependencies**
@@ -52,6 +53,7 @@
    npm install @chakra-ui/react @emotion/react @emotion/styled framer-motion
    npm install @chakra-ui/icons react-loading-skeleton
    npm install zod
+   npm install react-datepicker
    ```
 
 4. **Run the dev server**
@@ -70,10 +72,16 @@
 
    ```bash
    npm run build
-   npm start
+   pm2 start npm --name momath -- run start -- -H 0.0.0.0
    ```
 
-> Open [http://localhost:3000](http://localhost:3000) in your browser.
+6. **Run for production(pm2)**
+
+   ```bash
+   pm2 start npm --name momath -- run start -- -H 0.0.0.0
+   ```
+
+> Open [http://checkinapp.math.local:3000](http://checkinapp.math.local:3000) in your browser.
 
 ---
 

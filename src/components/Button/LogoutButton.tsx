@@ -12,6 +12,7 @@ export default function LogoutButton() {
           await fetch("/api/auth/logout");
           window.location.href = "/login";
         }}
+        blurBackground={true}
       >
         Log out
       </Button>

@@ -11,6 +11,7 @@ interface ButtonProps {
   onClick: () => void;
   children: ReactNode;
   disabledStatus?: boolean;
+  blurBackground?: boolean;
 }
 
 export default function Button({
@@ -18,11 +19,14 @@ export default function Button({
   onClick,
   children,
   disabledStatus,
+  blurBackground = false,
 }: ButtonProps) {
   return (
     <button
       onClick={onClick}
-      className={styles[pattern]}
+      className={`${styles[pattern]} ${
+        blurBackground ? styles.blurEffect : ""
+      }`}
       disabled={disabledStatus}
     >
       {children}

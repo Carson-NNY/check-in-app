@@ -101,7 +101,11 @@ export default function EventParticipants() {
   return (
     <div className={styles.page}>
       <Box position="fixed" top={4} left={1} zIndex="overlay">
-        <Button pattern="blueOutline" onClick={() => router.back()}>
+        <Button
+          pattern="blueOutline"
+          onClick={() => router.back()}
+          blurBackground={true}
+        >
           ← Back
         </Button>
       </Box>
@@ -155,7 +159,7 @@ export default function EventParticipants() {
                         {(
                           (checkedInParticipantCount / participants.length) *
                           100
-                        ).toFixed(2)}
+                        ).toFixed(0)}
                         %
                       </>
                     ) : (
@@ -164,7 +168,7 @@ export default function EventParticipants() {
                         {(
                           (checkedInParticipantCount / participants.length) *
                           100
-                        ).toFixed(2)}
+                        ).toFixed(0)}
                         %
                       </>
                     )}
@@ -188,7 +192,7 @@ export default function EventParticipants() {
                         {(
                           (uncheckedInParticipantCount / participants.length) *
                           100
-                        ).toFixed(2)}
+                        ).toFixed(0)}
                         %
                       </>
                     ) : (
@@ -197,7 +201,7 @@ export default function EventParticipants() {
                         {(
                           (uncheckedInParticipantCount / participants.length) *
                           100
-                        ).toFixed(2)}
+                        ).toFixed(0)}
                         %
                       </>
                     )}
