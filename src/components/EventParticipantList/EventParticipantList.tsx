@@ -71,16 +71,20 @@ export default function EventParticipantList({
         isClosable: true,
         position: "top",
       });
+      return true;
     } catch (err) {
       setError(
         `${err}, Error updating check-in status in /api/statusUpdate/[...data]`
       );
       console.error(err);
+      return false;
     }
   };
 
-  // behave differently for undo and check-in
-  const handleCheckInClick = (participant: any) => {
+  // behave differently for undo and check-in, we use optimistic update here and would roll back if API fails
+  const handleCheckInClick = async (participant: any) => {
+    // remember the original list in case we need to revert when request fails
+    const prevList = [...participantList];
     const newStatus =
       participant["status_id:label"] === "Attended" ? "Registered" : "Attended";
 
@@ -89,25 +93,31 @@ export default function EventParticipantList({
       "status_id:label": newStatus,
     };
 
-    const filtered = originalParticipantList.filter(
+    const without = originalParticipantList.filter(
       (p) => p.id !== participant.id
     );
 
-    if (newStatus === "Attended") {
-      filtered.push(updatedParticipant);
-    } else {
-      filtered.unshift(updatedParticipant);
-    }
+    const nextList =
+      newStatus === "Attended"
+        ? [...without, updatedParticipant]
+        : [updatedParticipant, ...without];
 
-    // Update state and fire API call
-    setParticipantList(filtered);
-    handleUpdate(
+    // Update state
+    setParticipantList(nextList);
+
+    // fire API call
+    const isSuccess = await handleUpdate(
       participant.id,
       newStatus,
       participant["contact_id.first_name"],
       participant["contact_id.last_name"],
       newStatus === "Attended" ? "checked in" : "reverted to registered status"
     );
+
+    // revert state if error
+    if (isSuccess == false) {
+      setParticipantList(prevList);
+    }
   };
 
   const setSortByFirstName = (o: "ASC" | "DESC" | null) => {
