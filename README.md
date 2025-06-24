@@ -41,7 +41,7 @@
    ```bash
    MOMATH_CHECKIN_PASSWORD=<Password for login page>
    CIVICRM_API_KEY=<CIVI API KEY>
-   CIVICRM_BASE_URL=https://sandbox.momath.org/civicrm/ajax/api4
+   CIVICRM_BASE_URL=https://sandbox.momath.org/civicrm/ajax/api4 (if use sandbox for testing)
    ```
 3. **Install dependencies**
 
