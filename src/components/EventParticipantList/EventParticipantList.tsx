@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { HighlightComponent } from "../Highlight/Highlight";
 import ParticipantDrawer from "../ParticipantDrawer";
 import { useToast } from "@chakra-ui/react";
@@ -46,6 +46,8 @@ export default function EventParticipantList({
   // cleanup previousStatuses entries older than 10 days in localStorage to prevent unbounded growth
   const TEN_DAYS = 10 * 24 * 60 * 60 * 1000;
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // we use _setSortByX to avoid confusion with the setter functions we expose that also reset other sort states
   const [sortByFirstName, _setSortByFirstName] = useState<
     "ASC" | "DESC" | null
@@ -90,6 +92,13 @@ export default function EventParticipantList({
       );
     }
   }, [previousStatuses]);
+
+  //  whenever any sort state changes, scroll the container to top
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [sortByFirstName, sortByLastName, sortByStatus]);
 
   // API call to update participant status
   const handleUpdate = async (
@@ -234,6 +243,7 @@ export default function EventParticipantList({
         border="1px solid"
         borderColor="gray.200"
         borderRadius="md"
+        ref={containerRef}
       >
         <Table variant="simple" maxHeight="400px">
           <TableCaption>

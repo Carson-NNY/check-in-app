@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { HighlightComponent } from "../Highlight/Highlight";
 import SortByLetter from "./Sort/SortByLetter";
@@ -38,7 +39,13 @@ export default function EventList({
   setSortByDate,
 }: EventListProps) {
   const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [sortByTitle, sortByDate]);
   return (
     <div>
       {events.length === 0 ? (
@@ -50,6 +57,7 @@ export default function EventList({
           border="1px solid"
           borderColor="gray.200"
           borderRadius="md"
+          ref={containerRef}
         >
           <Table variant="simple" maxHeight="400px">
             <TableCaption>Momath ~~~~~~</TableCaption>
