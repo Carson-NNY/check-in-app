@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HighlightComponent } from "../Highlight/Highlight";
 import ParticipantDrawer from "../ParticipantDrawer";
 import { useToast } from "@chakra-ui/react";
@@ -27,6 +27,11 @@ type Participant = {
   eventId: string;
 };
 
+type StatusEntry = {
+  status: string;
+  timestamp: number;
+};
+
 export default function EventParticipantList({
   displayedParticipants,
   originalParticipantList,
@@ -37,6 +42,9 @@ export default function EventParticipantList({
 }: Participant) {
   // for toast notifications
   const toast = useToast();
+
+  // cleanup previousStatuses entries older than 10 days in localStorage to prevent unbounded growth
+  const TEN_DAYS = 10 * 24 * 60 * 60 * 1000;
 
   // we use _setSortByX to avoid confusion with the setter functions we expose that also reset other sort states
   const [sortByFirstName, _setSortByFirstName] = useState<
@@ -50,9 +58,38 @@ export default function EventParticipantList({
     null
   );
 
+  // On init, load + prune anything > 30 days old
   const [previousStatuses, setPreviousStatuses] = useState<
-    Record<string, string>
-  >({});
+    Record<string, StatusEntry>
+  >(() => {
+    if (typeof window === "undefined") return {};
+    const saved = localStorage.getItem("previousStatuses");
+    if (!saved) return {};
+
+    const all: Record<string, StatusEntry> = JSON.parse(saved);
+    const cutoff = Date.now() - TEN_DAYS;
+    const pruned: Record<string, StatusEntry> = {};
+
+    for (const [id, entry] of Object.entries(all)) {
+      if (entry.timestamp >= cutoff) {
+        pruned[id] = entry;
+      }
+    }
+
+    // write the pruned result back so storage never grows unbounded
+    localStorage.setItem("previousStatuses", JSON.stringify(pruned));
+    return pruned;
+  });
+
+  // whenever update previousStatuses, re-persist it
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "previousStatuses",
+        JSON.stringify(previousStatuses)
+      );
+    }
+  }, [previousStatuses]);
 
   // API call to update participant status
   const handleUpdate = async (
@@ -94,15 +131,16 @@ export default function EventParticipantList({
     // remember the original list in case we need to revert when request fails
     // we only create a shallow copy of originalParticipantList here (prevOriginal), which is sufficient since the life cycle of the objects is limited to this function
     const prevOriginal = [...originalParticipantList];
-    let newStatus = "";
+    let newStatus: string;
     const oldStatus = participant["status_id:label"];
+
     if (oldStatus === "Attended") {
-      newStatus = previousStatuses[participant.id] || "Registered";
+      newStatus = previousStatuses[participant.id]?.status || "Registered";
     } else {
       // stash the current status before changing it
       setPreviousStatuses((ps) => ({
         ...ps,
-        [participant.id]: oldStatus,
+        [participant.id]: { status: oldStatus, timestamp: Date.now() },
       }));
       newStatus = "Attended";
     }
