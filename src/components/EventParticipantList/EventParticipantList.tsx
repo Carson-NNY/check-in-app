@@ -50,6 +50,10 @@ export default function EventParticipantList({
     null
   );
 
+  const [previousStatuses, setPreviousStatuses] = useState<
+    Record<string, string>
+  >({});
+
   // API call to update participant status
   const handleUpdate = async (
     id: string,
@@ -88,9 +92,20 @@ export default function EventParticipantList({
   // behave differently for undo and check-in, we use optimistic update here and would roll back if API fails
   const handleCheckInClick = async (participant: any) => {
     // remember the original list in case we need to revert when request fails
-    const prevList = [...displayedParticipants];
-    const newStatus =
-      participant["status_id:label"] === "Attended" ? "Registered" : "Attended";
+    // we only create a shallow copy of originalParticipantList here (prevOriginal), which is sufficient since the life cycle of the objects is limited to this function
+    const prevOriginal = [...originalParticipantList];
+    let newStatus = "";
+    const oldStatus = participant["status_id:label"];
+    if (oldStatus === "Attended") {
+      newStatus = previousStatuses[participant.id] || "Registered";
+    } else {
+      // stash the current status before changing it
+      setPreviousStatuses((ps) => ({
+        ...ps,
+        [participant.id]: oldStatus,
+      }));
+      newStatus = "Attended";
+    }
 
     const updatedParticipant = {
       ...participant,
@@ -101,6 +116,9 @@ export default function EventParticipantList({
       (p) => p.id !== participant.id
     );
 
+    // we want to move "Attended" to the end of the list, so that checked-in participants are grouped together at the bottom
+    // this is a simple way without re-sorting the entire list
+    // if reverting to previous status, we put the participant back to the top of the list
     const nextList =
       newStatus === "Attended"
         ? [...without, updatedParticipant]
@@ -118,9 +136,17 @@ export default function EventParticipantList({
       newStatus === "Attended" ? "checked in" : "reverted to registered status"
     );
 
-    // revert state if error
-    if (isSuccess == false) {
-      setOriginalParticipantList(prevList);
+    if (isSuccess == true) {
+      // remove the previous status from the record after reverting
+      if (oldStatus === "Attended") {
+        setPreviousStatuses((ps) => {
+          const { [participant.id]: _, ...rest } = ps;
+          return rest;
+        });
+      }
+    } else {
+      // revert state if error
+      setOriginalParticipantList(prevOriginal);
     }
   };
 
