@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { serialize } from "cookie";
 
+// API route to handle logout
 export async function GET() {
   const res = NextResponse.json({ success: true });
 

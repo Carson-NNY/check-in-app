@@ -1,4 +1,3 @@
-// src/app/login/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -21,7 +20,6 @@ import {
 import { PinInput, PinInputField } from "@chakra-ui/pin-input";
 
 export default function LoginPage() {
-  // const [password, setPassword] = useState("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -57,12 +55,6 @@ export default function LoginPage() {
           <form onSubmit={handleLogin}>
             <FormControl id="password" isRequired>
               <FormLabel>Password</FormLabel>
-              {/* <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-              /> */}
               <HStack justify="center">
                 <PinInput value={pin} mask onChange={(val) => setPin(val)}>
                   <PinInputField />

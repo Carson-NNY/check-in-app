@@ -4,6 +4,7 @@ import { serialize } from "cookie";
 const PASSWORD = process.env.MOMATH_CHECKIN_PASSWORD;
 const COOKIE_NAME = "momath_checkin_auth";
 
+// API route to handle login
 export async function POST(req: Request) {
   const { password } = await req.json();
 

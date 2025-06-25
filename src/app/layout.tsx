@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   },
 };
 
+// the root layout that wraps all pages
 export default function RootLayout({
   children,
 }: Readonly<{

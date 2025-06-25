@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateParticipantStatusAttended } from "@/services/participants";
 
+// API route to update participant status via check-in/revert button
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ data: string[] }> }

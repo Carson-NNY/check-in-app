@@ -2,11 +2,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchEventsByDateRange } from "@/services/events";
 
+// API route to fetch events by date range
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ date: string[] }> }
 ): Promise<NextResponse> {
-  // await the params promise
   const { date: segments } = await params;
 
   // If /api/events or /api/events/ (no segments)

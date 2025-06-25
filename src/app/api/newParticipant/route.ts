@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createParticipant } from "@/services/participants";
 import { ParticipantSchema } from "@/schemas/participant";
 
+// API route to create a new participant
 export async function POST(request: Request) {
   const json = await request.json();
   // Validate the JSON against the ParticipantSchema

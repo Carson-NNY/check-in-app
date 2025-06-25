@@ -89,3 +89,46 @@ export async function fetchContactByName(firstName: string, lastName: string) {
     throw error;
   }
 }
+
+// fetch existing contact by CiviCRM contact ID
+export async function fetchContactById(contactId: string) {
+  try {
+    const res = await fetch(CONTACT_GET_URL, {
+      method: "POST",
+      headers: HEADER,
+      body: new URLSearchParams({
+        api_key: API_KEY,
+        params: JSON.stringify({
+          id: contactId,
+        }),
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch Contact by ID", {
+        cause: res.statusText,
+      });
+    }
+
+    const payload = await res.json();
+    const { values } = payload;
+    if (!values) return null;
+
+    // keyed object case
+    if (!Array.isArray(values) && values[contactId]) {
+      console.log("Contact fetched by ID:", values[contactId]);
+      return values[contactId];
+    }
+
+    // array case
+    if (Array.isArray(values) && values.length > 0) {
+      console.log("Contact fetched by ID (array):", values[0]);
+      return values[0];
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching Contact by ID:", error);
+    throw error;
+  }
+}

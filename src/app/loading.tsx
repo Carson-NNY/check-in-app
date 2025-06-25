@@ -1,6 +1,6 @@
 import { Spinner, Flex, Text } from "@chakra-ui/react";
 
-// simple loading component for all the server fetching
+// simple loading component for all the server fetching (spinner)
 export default function Loading() {
   return (
     <Flex

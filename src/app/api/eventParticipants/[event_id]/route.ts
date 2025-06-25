@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchParticipantByEventId } from "@/services/participants";
 
+// API route to fetch participants by event ID
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ event_id: string }> }

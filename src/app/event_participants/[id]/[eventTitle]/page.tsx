@@ -24,6 +24,7 @@ import {
   StatGroup,
 } from "@chakra-ui/react";
 
+// the page that shows the participants of a specific event
 export default function EventParticipants() {
   // Get eventId and eventTitle from the URL parameters
   const params = useParams();
