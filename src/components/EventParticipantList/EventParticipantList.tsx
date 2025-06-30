@@ -338,11 +338,9 @@ export default function EventParticipantList({
                       />
                     </Td>
                     <Td>
-                      {participant["contact_id.phone_primary.phone_numeric"]
+                      {participant["contact_id.phone_primary.phone"]
                         ? formatPhone(
-                            participant[
-                              "contact_id.phone_primary.phone_numeric"
-                            ]
+                            participant["contact_id.phone_primary.phone"]
                           )
                         : "None"}
                     </Td>

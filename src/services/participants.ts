@@ -1,4 +1,5 @@
-import { fetchContactByName, createContact } from "./contacts";
+import { create } from "domain";
+import { fetchContactByName, createContact, createPhone } from "./contacts";
 
 // construct the URLs and headers
 const PARTICIPANT_GET_URL = process.env.CIVICRM_BASE_URL + "/Participant/get";
@@ -66,7 +67,14 @@ export async function fetchParticipantByEventId(eventId: any) {
             "status_id:label", // Option transformations
             "contact_id.first_name", // implicit join
             "contact_id.last_name", // implicit join
-            "contact_id.phone_primary.phone_numeric", // nested implicit join
+            "contact_id.phone_primary.phone", // nested implicit join
+            //   "*",
+            //   "fee_level",
+            //   "is_pay_later",
+            //   "event_id.financial_type_id:name",
+            //   "fee_amount",
+            // "contact_id.first_name",
+            // "contact_id.last_name",
           ],
           where: [["event_id", "=", eventId]],
           orderBy: { "status_id:label": "DESC" },
@@ -83,6 +91,7 @@ export async function fetchParticipantByEventId(eventId: any) {
       );
     }
     const data = await res.json();
+    console.log(data.values);
     return data.values;
   } catch (error) {
     console.error("Error fetching participants by event ID:", error);
@@ -106,6 +115,7 @@ export async function fetchParticipantById(participantId: string) {
             "contact_id.sort_name",
             "contact_id.first_name",
             "contact_id.last_name",
+            "contact_id.phone_primary.phone",
           ],
           where: [["id", "=", participantId]],
         }),
@@ -170,21 +180,35 @@ export async function createParticipant(data: {
   firstName: string;
   middleName: string;
   contactType: string;
+  phoneNumber: string;
   source: string;
 }) {
-  // first check if the contact already exists
   try {
+    // first check if the contact already exists
     let contact = await fetchContactByName(data.firstName, data.lastName);
+    //  if contact does not exist, create a new contact
     if (!contact) {
-      //   create a new contact
       console.log("Contact not found, creating a new one...");
       try {
         contact = await createContact(data);
-        console.log("Contact created with ID:", contact.id);
+        console.log("Contact created successfully with ID:", contact.id);
+        const phone = await createPhone(data.phoneNumber, contact.id);
+        // handle contact update phone_primary
+        if (contact && phone) {
+          console.log(
+            "Updating contact's primary phone... with phone ID:",
+            phone.id
+          );
+
+          contact = await fetchContactByName(data.firstName, data.lastName);
+          console.log("Contact updated with new phone:", contact);
+        }
       } catch (error) {
         console.error("Error creating a Contact:", error);
         throw error;
       }
+    } else if (contact.phone_primary.phone_numeric !== data.phoneNumber) {
+      // TODO: handle the case when if contact exists but phone number mismatch (update the contact's phone number)
     }
 
     // create a new participant

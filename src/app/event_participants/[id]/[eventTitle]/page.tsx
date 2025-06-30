@@ -112,7 +112,7 @@ export default function EventParticipants() {
           onClick={() => router.back()}
           blurBackground={true}
         >
-          ← Back
+          ← Home
         </Button>
       </Box>
       <LogoutButton />

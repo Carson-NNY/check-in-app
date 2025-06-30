@@ -8,14 +8,14 @@ import {
   DrawerCloseButton,
   DrawerHeader,
   DrawerBody,
-  DrawerFooter,
   Button,
   FormLabel,
   Input,
   Stack,
   Box,
   useDisclosure,
-  Select,
+  Select, InputGroup,
+  InputLeftAddon
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useToast } from "@chakra-ui/react";
@@ -42,9 +42,9 @@ export default function ParticipantDrawer({
     const payload = {
       eventId,
       status: "Registered",
-      lastName: form.lastName.value,
       firstName: form.firstName.value,
-      middleName: form.middleName.value,
+      lastName: form.lastName.value,
+      phoneNumber: form.phoneNumber.value,
       contactType: form.contactType.value,
       source: form.source.value,
     };
@@ -102,14 +102,36 @@ export default function ParticipantDrawer({
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader>Create Participant</DrawerHeader>
-
+          <DrawerHeader style={{ display: "flex", justifyContent: "space-evenly" }}>
+            <Button
+                colorScheme="blue"
+                type="submit"
+                form="participant-form"
+                isLoading={loading}
+            >
+              Submit
+            </Button>
+            <Button variant="outline" ml={3} onClick={onClose}>
+              Cancel
+            </Button>
+          </DrawerHeader>
           <DrawerBody>
             <form id="participant-form" onSubmit={handleSubmit}>
               <Stack spacing="20px">
+
+                <Box>
+                  <FormLabel htmlFor="firstName">First Name *</FormLabel>
+                  <Input
+                      ref={firstField}
+                      id="firstName"
+                      name="firstName"
+                      placeholder=""
+                      required
+                  />
+                </Box>
                 <Box>
                   <FormLabel htmlFor="lastName">Last Name *</FormLabel>
                   <Input
-                    ref={firstField}
                     id="lastName"
                     name="lastName"
                     placeholder=""
@@ -118,18 +140,14 @@ export default function ParticipantDrawer({
                 </Box>
 
                 <Box>
-                  <FormLabel htmlFor="middleName">Middle Name</FormLabel>
-                  <Input id="middleName" name="middleName" placeholder="" />
-                </Box>
-
-                <Box>
-                  <FormLabel htmlFor="firstName">First Name *</FormLabel>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    placeholder=""
-                    required
-                  />
+                  <FormLabel htmlFor="phoneNumber">Phone </FormLabel>
+                  <InputGroup>
+                    <InputLeftAddon>+1</InputLeftAddon>
+                    <Input type='tel'  id="phoneNumber" name="phoneNumber" inputMode="numeric" 
+                        pattern="[0-9]*" minLength={10} maxLength={10} onInput={(e) => {
+                      e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "");
+                    }}/>
+                  </InputGroup>
                 </Box>
 
                 <Box>
@@ -153,19 +171,6 @@ export default function ParticipantDrawer({
             </form>
           </DrawerBody>
 
-          <DrawerFooter>
-            <Button
-              colorScheme="blue"
-              type="submit"
-              form="participant-form"
-              isLoading={loading}
-            >
-              Submit
-            </Button>
-            <Button variant="outline" ml={3} onClick={onClose}>
-              Cancel
-            </Button>
-          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </>

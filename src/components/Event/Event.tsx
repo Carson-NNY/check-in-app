@@ -206,9 +206,7 @@ export default function EventPage() {
             duration={0.7}
             borderRadius={10}
           />
-        ) : (
-          <h4>(Total: {eventList.length})</h4>
-        )}
+        ) : (<div><h4>(Total: {eventList.length})</h4></div>)}
       </Flex>
 
       {/* search box */}

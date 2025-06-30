@@ -7,7 +7,6 @@ const COOKIE_NAME = "momath_checkin_auth";
 // API route to handle login
 export async function POST(req: Request) {
   const { password } = await req.json();
-
   if (password !== PASSWORD) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

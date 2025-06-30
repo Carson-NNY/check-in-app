@@ -1,6 +1,8 @@
 // construct the URLs and headers
 const CONTACT_CREATE_URL = process.env.CIVICRM_BASE_URL + "/Contact/create";
 const CONTACT_GET_URL = process.env.CIVICRM_BASE_URL + "/Contact/get";
+const CONTACT_UPDATE_URL = process.env.CIVICRM_BASE_URL + "/Contact/update";
+const PHONE_CREATE_URL = process.env.CIVICRM_BASE_URL + "/Phone/create";
 const API_KEY = process.env.CIVICRM_API_KEY || "";
 
 const HEADER = {
@@ -14,6 +16,7 @@ export async function createContact(data: {
   firstName: string;
   middleName: string;
   contactType: string;
+  phoneNumber?: string;
 }) {
   //  first just create a new contact
   try {
@@ -60,7 +63,7 @@ export async function fetchContactByName(firstName: string, lastName: string) {
       body: new URLSearchParams({
         api_key: API_KEY,
         params: JSON.stringify({
-          select: ["*"],
+          select: ["*", "phone_primary.phone"],
           where: [
             ["first_name", "=", firstName],
             ["last_name", "=", lastName],
@@ -129,6 +132,56 @@ export async function fetchContactById(contactId: string) {
     return null;
   } catch (error) {
     console.error("Error fetching Contact by ID:", error);
+    throw error;
+  }
+}
+
+export async function createPhone(phoneNumber: string, contactId: string) {
+  if (!phoneNumber || phoneNumber.trim() === "" || phoneNumber.length !== 10) {
+    console.warn("No valid phone number provided, skipping phone creation.");
+    return null;
+  }
+
+  // Format the phone number to remove non-numeric characters and format it as xxx-xxx-xxxx
+  const formattedPhoneNumber = phoneNumber.replace(/[^0-9]/g, "");
+  const phoneData = {
+    phone: formattedPhoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3"),
+    phone_numeric: formattedPhoneNumber,
+  };
+
+  try {
+    const res = await fetch(PHONE_CREATE_URL, {
+      method: "POST",
+      headers: HEADER,
+      body: new URLSearchParams({
+        api_key: API_KEY,
+        params: JSON.stringify({
+          values: {
+            phone_numeric: phoneData.phone_numeric, // raw phone number as 10 digits
+            phone: phoneData.phone, // formatted phone number as xxx-xxx-xxxx
+            contact_id: contactId,
+            location_type_id: 3, // we assume 3 which is "Main" as the default location type
+            // "location_type_id:description": "Main office location",
+            // "location_type_id:label": "Main",
+            // "location_type_id:name": "Main",
+            // "location_type_id:abbr": "Main",
+          },
+        }),
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to create Phone", {
+        cause: res.statusText,
+      });
+    }
+
+    const payload = await res.json();
+    console.log("raw phone payload:", payload);
+    // console.log("Phone created successfully:", payload.values[0]);
+    return payload.values[0];
+  } catch (error) {
+    console.error("Error creating Phone:", error);
     throw error;
   }
 }
