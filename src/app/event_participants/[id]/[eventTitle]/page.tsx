@@ -11,7 +11,8 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Box } from "@chakra-ui/react";
 import Button from "@/components/Button/Button";
-import { SkeletonCircle } from "@chakra-ui/react";
+import { SkeletonCircle, Flex } from "@chakra-ui/react";
+import ParticipantDrawer from "@/components/ParticipantDrawer";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -143,11 +144,18 @@ export default function EventParticipants() {
         <span style={{ fontSize: "18px" }}>(Event ID: {eventId})</span>
       </h2>
       <div className={styles.searchBox}>
-        <SearchBox
-          search={search}
-          setSearch={setSearch}
-          placeholder="Search by names"
-        />
+        <Flex direction="column" gap={4} w="100%">
+          <SearchBox
+            search={search}
+            setSearch={setSearch}
+            placeholder="Search by names"
+          />
+          <ParticipantDrawer
+            eventId={eventId}
+            setParticipants={setParticipants}
+            participantRoles={participantRoles}
+          />
+        </Flex>
 
         {/* display Total/Checked/Unchecked number and percentage */}
         <Box width="100%" display="flex" justifyContent="center" mb={4}>
@@ -243,7 +251,6 @@ export default function EventParticipants() {
             setError={setError}
             highlight={search}
             eventId={eventId || ""}
-            participantRoles={participantRoles}
           />
         </>
       )}

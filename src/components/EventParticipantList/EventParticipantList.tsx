@@ -14,7 +14,6 @@ import {
   Tr,
   Th,
   Td,
-  TableCaption,
   TableContainer,
 } from "@chakra-ui/react";
 
@@ -25,7 +24,6 @@ type Participant = {
   setError: (error: string | null) => void;
   highlight: string;
   eventId: string;
-  participantRoles?: any[];
 };
 
 type StatusEntry = {
@@ -40,7 +38,6 @@ export default function EventParticipantList({
   setError,
   highlight,
   eventId,
-  participantRoles,
 }: Participant) {
   // for toast notifications
   const toast = useToast();
@@ -247,13 +244,6 @@ export default function EventParticipantList({
         ref={containerRef}
       >
         <Table variant="simple" maxHeight="400px">
-          <TableCaption>
-            <ParticipantDrawer
-              eventId={eventId}
-              setParticipants={setOriginalParticipantList}
-              participantRoles={participantRoles}
-            />
-          </TableCaption>
           <Thead
             position="sticky"
             top={0}

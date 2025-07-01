@@ -7,10 +7,6 @@ export const ParticipantSchema = z
     status: z.enum(["Attended", "Registered", "No-show", "Cancelled"]),
     firstName: z.string().min(1, "firstName is required").max(50),
     lastName: z.string().min(1, "lastName is required").max(50),
-    contactType: z
-      .enum(["Individual", "Household", "Organization"])
-      .optional()
-      .or(z.literal("")),
     participantRole: z.string().optional().or(z.literal("")),
     phoneNumber: z
       .string()

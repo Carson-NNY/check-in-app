@@ -50,7 +50,6 @@ export default function ParticipantDrawer({
       lastName: form.lastName.value,
       phoneNumber: form.phoneNumber.value,
       email: form.email.value,
-      contactType: form.contactType.value,
       source: form.source.value,
       participantRole: form.participantRole.value,
     };
@@ -63,7 +62,7 @@ export default function ParticipantDrawer({
 
     if (res.ok) {
       const newParticipant = await res.json();
-      setParticipants((prev) => [...prev, newParticipant]);
+      setParticipants((prev) => [newParticipant, ...prev]);
       toast({
         title: "Success!",
         description: `${newParticipant["contact_id.sort_name"]} has been added successfully.`,
@@ -108,9 +107,7 @@ export default function ParticipantDrawer({
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader>Create Participant</DrawerHeader>
-          <DrawerHeader
-            style={{ display: "flex", justifyContent: "space-evenly" }}
-          >
+          <DrawerHeader style={{ display: "flex", justifyContent: "normal" }}>
             <Button
               colorScheme="blue"
               type="submit"
@@ -145,6 +142,22 @@ export default function ParticipantDrawer({
                     required
                   />
                 </FormControl>
+                <Box>
+                  <FormLabel htmlFor="participantRole">
+                    Participant Role
+                  </FormLabel>
+                  <Select
+                    id="participantRole"
+                    name="participantRole"
+                    placeholder="Select participant role"
+                  >
+                    {participantRoles?.map((role) => (
+                      <option key={role.label} value={role.label}>
+                        {role.label}{" "}
+                      </option>
+                    ))}
+                  </Select>
+                </Box>
 
                 <Box>
                   <FormLabel htmlFor="phoneNumber">Phone </FormLabel>
@@ -176,7 +189,6 @@ export default function ParticipantDrawer({
                       <EmailIcon color="gray.500" />
                     </InputLeftAddon>
                     <Input
-                      ref={firstField}
                       id="email"
                       name="email"
                       type="email"
@@ -184,35 +196,6 @@ export default function ParticipantDrawer({
                     />
                   </InputGroup>
                 </FormControl>
-
-                <Box>
-                  <FormLabel htmlFor="contactType">Contact Type</FormLabel>
-                  <Select
-                    id="contactType"
-                    name="contactType"
-                    placeholder="Select contact type"
-                  >
-                    <option value="Household">Household</option>
-                    <option value="Individual">Individual</option>
-                    <option value="Organization">Organization</option>
-                  </Select>
-                </Box>
-                <Box>
-                  <FormLabel htmlFor="participantRole">
-                    Participant Role
-                  </FormLabel>
-                  <Select
-                    id="participantRole"
-                    name="participantRole"
-                    placeholder="Select participant role"
-                  >
-                    {participantRoles?.map((role) => (
-                      <option key={role.label} value={role.label}>
-                        {role.label}{" "}
-                      </option>
-                    ))}
-                  </Select>
-                </Box>
 
                 <Box>
                   <FormLabel htmlFor="source">Source</FormLabel>

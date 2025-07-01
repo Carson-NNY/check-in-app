@@ -11,7 +11,6 @@ export async function GET(): Promise<NextResponse> {
         { status: 404 }
       );
     }
-    console.log("Participant roles fetched successfully:", all_roles);
     return NextResponse.json(all_roles, { status: 200 });
   } catch (error) {
     console.error("Error in /api/eventParticipants/[event_id]", error);
