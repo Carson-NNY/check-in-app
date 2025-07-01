@@ -17,6 +17,7 @@ export async function createContact(data: {
   middleName: string;
   contactType: string;
   phoneNumber?: string;
+  email?: string;
 }) {
   //  first just create a new contact
   try {
@@ -54,8 +55,11 @@ export async function createContact(data: {
   }
 }
 
-// fetch existing contact by first and last name
-export async function fetchContactByName(firstName: string, lastName: string) {
+// fetch existing contact list by first and last name
+export async function fetchContactListByName(
+  firstName: string,
+  lastName: string
+) {
   try {
     const res = await fetch(CONTACT_GET_URL, {
       method: "POST",
@@ -68,7 +72,6 @@ export async function fetchContactByName(firstName: string, lastName: string) {
             ["first_name", "=", firstName],
             ["last_name", "=", lastName],
           ],
-          limit: 1,
         }),
       }),
     });
@@ -79,11 +82,8 @@ export async function fetchContactByName(firstName: string, lastName: string) {
     }
     const payload = await res.json();
     if (payload.values && payload.values.length > 0) {
-      console.log(
-        "One existing contact fetched successfully:",
-        payload.values[0]
-      );
-      return payload.values[0]; // Return the contact details
+      // console.log("One existing contact fetched successfully:", payload.values);
+      return Array.isArray(payload.values) ? payload.values : [];
     } else {
       return null;
     }
@@ -102,7 +102,8 @@ export async function fetchContactById(contactId: string) {
       body: new URLSearchParams({
         api_key: API_KEY,
         params: JSON.stringify({
-          id: contactId,
+          select: ["*", "phone_primary.phone", "email_primary.email"],
+          where: [["id", "=", contactId]],
         }),
       }),
     });
@@ -112,24 +113,8 @@ export async function fetchContactById(contactId: string) {
         cause: res.statusText,
       });
     }
-
-    const payload = await res.json();
-    const { values } = payload;
-    if (!values) return null;
-
-    // keyed object case
-    if (!Array.isArray(values) && values[contactId]) {
-      console.log("Contact fetched by ID:", values[contactId]);
-      return values[contactId];
-    }
-
-    // array case
-    if (Array.isArray(values) && values.length > 0) {
-      console.log("Contact fetched by ID (array):", values[0]);
-      return values[0];
-    }
-
-    return null;
+    const { values } = await res.json();
+    return Array.isArray(values) && values.length > 0 ? values[0] : null;
   } catch (error) {
     console.error("Error fetching Contact by ID:", error);
     throw error;

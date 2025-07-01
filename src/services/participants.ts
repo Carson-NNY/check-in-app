@@ -1,9 +1,9 @@
-import { create } from "domain";
 import {
-  fetchContactByName,
+  fetchContactListByName,
   createContact,
   createPhone,
   createEmail,
+  fetchContactById,
 } from "./contacts";
 
 // construct the URLs and headers
@@ -73,6 +73,7 @@ export async function fetchParticipantByEventId(eventId: any) {
             "contact_id.first_name", // implicit join
             "contact_id.last_name", // implicit join
             "contact_id.phone_primary.phone", // nested implicit join
+            // "contact_id.email_primary.email", // nested implicit join
             //   "*",
             //   "fee_level",
             //   "is_pay_later",
@@ -190,37 +191,8 @@ export async function createParticipant(data: {
   source: string;
 }) {
   try {
-    // first check if the contact already exists
-    let contact = await fetchContactByName(data.firstName, data.lastName);
-    //  if contact does not exist, create a new contact
-    if (!contact) {
-      console.log("Contact not found, creating a new one...");
-      try {
-        // separately creating contact and phone is find, since when we create a phone with
-        // corresponding contact_id, it will automatically update the contact's phone_primary (since phone.is_primary is true by default)
-        // the same is true  when we create email
-        contact = await createContact(data);
-        console.log("Contact created successfully with ID:", contact.id);
-
-        if (data.phoneNumber) {
-          await createPhone(data.phoneNumber, contact.id);
-        }
-        if (data.email) {
-          await createEmail(data.email, contact.id);
-        }
-        contact = await fetchContactByName(data.firstName, data.lastName);
-        console.log("Contact updated with new phone and new email:", contact);
-      } catch (error) {
-        console.error("Error creating a Contact:", error);
-        throw error;
-      }
-    }
-
-    // if contact exists, check if the phone number matches
-    // if contact exists but phone number mismatch, update the contact's phone number
-    // we can just create a new phone, since the phone.is_primary is true by default
-    // and it will automatically update the contact's phone_primary
-    await handleMismtachPhoneOrEmail(data, contact);
+    // fetch the contact list by first and last name
+    let contact = await handleContactFetchAndUpdate(data);
 
     // create a new participant
     const res = await fetch(PARTICIPANT_CREATE_URL, {
@@ -239,11 +211,13 @@ export async function createParticipant(data: {
         }),
       }),
     });
+
     if (!res.ok) {
       throw new Error("Failed to create participant", {
         cause: res.statusText,
       });
     }
+
     const payload = await res.json();
     if (payload.values == null || payload.values.length === 0) {
       console.warn("No participant created.");
@@ -257,41 +231,124 @@ export async function createParticipant(data: {
     throw error;
   }
 }
-async function handleMismtachPhoneOrEmail(
-  data: {
-    eventId: string;
-    status: string;
-    lastName: string;
-    firstName: string;
-    middleName: string;
-    contactType: string;
-    phoneNumber: string;
-    email: string;
-    source: string;
-  },
-  contact: any
-) {
-  if (data.phoneNumber && contact["phone_primary.phone"] !== data.phoneNumber) {
-    console.log(
-      "Contact exists but phone number mismatch, updating the phone number..."
-    );
+
+/**
+ * Returns the first contact whose phone or email matches,
+ * or null if none found.
+ */
+const matchContactByPhoneOrEmail = (
+  contactList: any[] | null | undefined,
+  phoneNumber?: string,
+  email?: string
+): any | null => {
+  if (!phoneNumber && !email) {
+    return null;
+  }
+
+  const list = contactList ?? [];
+
+  return (
+    list.find(
+      (contact) =>
+        (phoneNumber && contact["phone_primary.phone"] === phoneNumber) ||
+        (email && contact["email_primary.email"] === email)
+    ) || null
+  );
+};
+
+const getContactWithNoPhoneAndEmail = (
+  contactList: any[] | null | undefined
+): any | null => {
+  const list = contactList ?? [];
+  return (
+    list.find(
+      (contact) =>
+        !contact["phone_primary.phone"] && !contact["email_primary.email"]
+    ) || null
+  );
+};
+
+async function handleContactFetchAndUpdate(data: {
+  eventId: string;
+  status: string;
+  lastName: string;
+  firstName: string;
+  middleName: string;
+  contactType: string;
+  phoneNumber: string;
+  email: string;
+  source: string;
+}) {
+  // there might be multiple contacts with the same first and last name, so we need to fetch the contact list
+  let contactList = await fetchContactListByName(data.firstName, data.lastName);
+
+  let contact;
+  // contact list exists: iterate through the list to check if any one of their phone number or email match
+  //   1. if one of them match, update that contact's info and use that contact to create a new participant
+  //   2. if none of them match, create a new contact and create a new phone and email
+  // fetch the contact if either phone number or email matches
+  console.log("data to be matched:", data);
+  console.log("Contact list with the same name fetched:", contactList);
+
+  // format the phone number and email
+  const phone = data.phoneNumber?.trim() ?? "";
+  const cleanedPhoneNumber = phone.replace(/[^0-9]/g, "");
+  const formattedPhoneNumber = cleanedPhoneNumber.replace(
+    /(\d{3})(\d{3})(\d{4})/,
+    "$1-$2-$3"
+  );
+  console.log("Formatted phone number:", formattedPhoneNumber);
+  const email = data.email?.trim() ?? "";
+
+  contact = matchContactByPhoneOrEmail(
+    contactList,
+    formattedPhoneNumber,
+    email
+  );
+
+  console.log("matching Contact found???? :", contact);
+
+  // contact does not exist:
+  if (!contact) {
+    //  though no matching contact found, but check if there is an existing contact with the same name but with empty phone and email
+    // In this case, we can use that contact to update the phone and email without creating a duplicate contact
+    contact = getContactWithNoPhoneAndEmail(contactList);
+    console.log("Contact with no phone and email found22222:", contact);
     try {
-      const phone = await createPhone(data.phoneNumber, contact.id);
-      console.log("Contact updated with new phone:", contact);
+      // only if in this case (no basic match), we will create a new contact
+      if (!contact) {
+        console.log("Contact not found, creating a new one...");
+        contact = await createContact(data);
+        console.log("Contact created successfully with ID:", contact.id);
+      }
     } catch (error) {
-      console.error("Error updating contact's phone:", error);
+      console.error("Error creating a Contact:", error);
       throw error;
     }
   }
 
-  if (data.email && contact["email_primary.email"] !== data.email) {
-    console.log("Contact exists but email mismatch, updating the email...");
-    try {
-      await createEmail(data.email, contact.id);
-      console.log("Contact updated with new email:", contact);
-    } catch (error) {
-      console.error("Error updating contact's email:", error);
-      throw error;
-    }
+  // here we have several cases:
+  // 1. contact did not exist, and we have a newly created contact (contact without phone and email)
+  // 2. contact exists, but with no phone and email
+  // 3. contact exists with one of phone or email matches, but the other is empty or mismatched
+
+  // separately creating contact and phone is fine, since when we create a phone with
+  // corresponding contact_id, it will automatically update the contact's phone_primary (since phone.is_primary is true by default)
+  // the same is true  when we create email
+  if (
+    formattedPhoneNumber &&
+    contact["phone_primary.phone"] !== formattedPhoneNumber
+  ) {
+    console.log("need to create a new phone for contact:", contact.id);
+    await createPhone(data.phoneNumber, contact.id);
   }
+  if (email && contact["email_primary.email"] !== email) {
+    console.log("need to create a new email for contact:", contact.id);
+    await createEmail(data.email, contact.id);
+  }
+
+  contact = await fetchContactById(contact.id);
+  console.log("Contact updated with new phone and new email:", contact);
+
+  return contact;
 }
