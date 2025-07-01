@@ -241,11 +241,10 @@ const matchContactByPhoneOrEmail = (
   phoneNumber?: string,
   email?: string
 ): any | null => {
-  if (!phoneNumber && !email) {
-    return null;
-  }
-
   const list = contactList ?? [];
+  if (!phoneNumber && !email) {
+    return list.length > 0 ? list[0] : null;
+  }
 
   return (
     list.find(
@@ -300,13 +299,17 @@ async function handleContactFetchAndUpdate(data: {
   console.log("Formatted phone number:", formattedPhoneNumber);
   const email = data.email?.trim() ?? "";
 
+  //  match the contact by phone or email, or return any of name-matching one contact if params of "phoneNumber" and "email" are both empty
   contact = matchContactByPhoneOrEmail(
     contactList,
     formattedPhoneNumber,
     email
   );
 
-  console.log("matching Contact found???? :", contact);
+  console.log(
+    "matching Contact with phone or email or when both params of these two are empty found???? :",
+    contact
+  );
 
   // contact does not exist:
   if (!contact) {
@@ -335,16 +338,23 @@ async function handleContactFetchAndUpdate(data: {
   // separately creating contact and phone is fine, since when we create a phone with
   // corresponding contact_id, it will automatically update the contact's phone_primary (since phone.is_primary is true by default)
   // the same is true  when we create email
+
+  let flag = 0;
   if (
     formattedPhoneNumber &&
     contact["phone_primary.phone"] !== formattedPhoneNumber
   ) {
     console.log("need to create a new phone for contact:", contact.id);
     await createPhone(data.phoneNumber, contact.id);
+    flag = 1; // set flag to indicate that we have created a new phone
   }
   if (email && contact["email_primary.email"] !== email) {
     console.log("need to create a new email for contact:", contact.id);
     await createEmail(data.email, contact.id);
+    flag = 1;
+  }
+  if (flag === 0) {
+    console.log("contact with existing phone and email untouched~~~");
   }
 
   contact = await fetchContactById(contact.id);
