@@ -18,8 +18,6 @@ import {
   InputGroup,
   InputLeftAddon,
   FormControl,
-  FormHelperText,
-  FormErrorMessage,
 } from "@chakra-ui/react";
 import { AddIcon, EmailIcon } from "@chakra-ui/icons";
 import { useToast } from "@chakra-ui/react";
@@ -27,21 +25,18 @@ import { useToast } from "@chakra-ui/react";
 type ParticipantDrawerProps = {
   eventId: string;
   setParticipants: React.Dispatch<React.SetStateAction<any[]>>;
+  participantRoles?: any[];
 };
 
 export default function ParticipantDrawer({
   eventId,
   setParticipants,
+  participantRoles,
 }: ParticipantDrawerProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const firstField = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
-
-  // Controlled state for the email field
-  // const [email, setEmail] = useState("");
-  // const emailIsValid = /^\S+@\S+\.\S+$/.test(email);
-  // const emailHasError = email.length > 0 && !emailIsValid;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -57,6 +52,7 @@ export default function ParticipantDrawer({
       email: form.email.value,
       contactType: form.contactType.value,
       source: form.source.value,
+      participantRole: form.participantRole.value,
     };
 
     const res = await fetch("/api/newParticipant", {
@@ -199,6 +195,22 @@ export default function ParticipantDrawer({
                     <option value="Household">Household</option>
                     <option value="Individual">Individual</option>
                     <option value="Organization">Organization</option>
+                  </Select>
+                </Box>
+                <Box>
+                  <FormLabel htmlFor="participantRole">
+                    Participant Role
+                  </FormLabel>
+                  <Select
+                    id="participantRole"
+                    name="participantRole"
+                    placeholder="Select participant role"
+                  >
+                    {participantRoles?.map((role) => (
+                      <option key={role.label} value={role.label}>
+                        {role.label}{" "}
+                      </option>
+                    ))}
                   </Select>
                 </Box>
 

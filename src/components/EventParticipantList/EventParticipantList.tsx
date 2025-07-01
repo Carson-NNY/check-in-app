@@ -25,6 +25,7 @@ type Participant = {
   setError: (error: string | null) => void;
   highlight: string;
   eventId: string;
+  participantRoles?: any[];
 };
 
 type StatusEntry = {
@@ -39,6 +40,7 @@ export default function EventParticipantList({
   setError,
   highlight,
   eventId,
+  participantRoles,
 }: Participant) {
   // for toast notifications
   const toast = useToast();
@@ -77,7 +79,6 @@ export default function EventParticipantList({
         pruned[id] = entry;
       }
     }
-
     // write the pruned result back so storage never grows unbounded
     localStorage.setItem("previousStatuses", JSON.stringify(pruned));
     return pruned;
@@ -250,6 +251,7 @@ export default function EventParticipantList({
             <ParticipantDrawer
               eventId={eventId}
               setParticipants={setOriginalParticipantList}
+              participantRoles={participantRoles}
             />
           </TableCaption>
           <Thead

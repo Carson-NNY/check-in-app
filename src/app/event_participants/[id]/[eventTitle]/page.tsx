@@ -45,6 +45,8 @@ export default function EventParticipants() {
   const [uncheckedInParticipantCount, setUncheckedInParticipantCount] =
     useState<number>(0);
 
+  const [participantRoles, setParticipantRoles] = useState<any[]>([]);
+
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
   // we need to debounce the search input to avoid excessive filtering
@@ -92,6 +94,17 @@ export default function EventParticipants() {
 
         const data = await response.json();
         setParticipants(Array.isArray(data) ? data : []);
+        const participantRolesResponse = await fetch("/api/roles");
+
+        if (!participantRolesResponse.ok) {
+          const errorText = await participantRolesResponse.text();
+          throw new Error(
+            `Status: ${participantRolesResponse.status}, Cause: ${errorText}`
+          );
+        }
+
+        const participantRoles = await participantRolesResponse.json();
+        setParticipantRoles(participantRoles);
       } catch (error) {
         console.error("Error fetching participants:", error);
         setError("useEffect failed in event_participants/[id] — " + error);
@@ -230,6 +243,7 @@ export default function EventParticipants() {
             setError={setError}
             highlight={search}
             eventId={eventId || ""}
+            participantRoles={participantRoles}
           />
         </>
       )}

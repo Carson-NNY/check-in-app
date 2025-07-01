@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       .join("; ");
     return NextResponse.json({ error: errorMessages }, { status: 400 });
   }
-
+  console.log("Validated participant data:", result.data);
   try {
     const created = await createParticipant(result.data);
     return NextResponse.json(created, { status: 201 });

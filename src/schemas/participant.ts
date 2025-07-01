@@ -11,6 +11,7 @@ export const ParticipantSchema = z
       .enum(["Individual", "Household", "Organization"])
       .optional()
       .or(z.literal("")),
+    participantRole: z.string().optional().or(z.literal("")),
     phoneNumber: z
       .string()
       .length(10, "phoneNumber must be 10 digits")

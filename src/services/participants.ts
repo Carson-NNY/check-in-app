@@ -20,6 +20,35 @@ const HEADER = {
 
 const API_KEY = process.env.CIVICRM_API_KEY || "";
 
+const OPTION_VALUE_GET_URL = process.env.CIVICRM_BASE_URL + "/OptionValue/get";
+
+export async function fetchAllParticipantRoles() {
+  const res = await fetch(OPTION_VALUE_GET_URL, {
+    method: "POST",
+    headers: HEADER,
+    body: new URLSearchParams({
+      api_key: API_KEY,
+      params: JSON.stringify({
+        select: ["label"],
+        where: [
+          ["option_group_id.name", "=", "participant_role"], // filter by option group name
+          ["is_active", "=", 1], // filter by active status
+        ],
+      }),
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(
+      `Failed to fetch participant roles: ${res.status} ${res.statusText}\n${errorText}`
+    );
+  }
+
+  const { values } = await res.json();
+  return Array.isArray(values) ? values : [];
+}
+
 // Fetch all participants.  not currently used, but could be useful for other features
 export async function fetchAllParticipants() {
   try {
@@ -96,6 +125,7 @@ export async function fetchParticipantByEventId(eventId: any) {
         }
       );
     }
+
     const data = await res.json();
     console.log(data.values);
     return data.values;
@@ -122,6 +152,7 @@ export async function fetchParticipantById(participantId: string) {
             "contact_id.first_name",
             "contact_id.last_name",
             "contact_id.phone_primary.phone",
+            "role_id:name",
           ],
           where: [["id", "=", participantId]],
         }),
@@ -225,6 +256,7 @@ export async function createParticipant(data: {
     }
     // get the participant by ID with the fields we need. i.e. "status_id:label", "contact_id.sort_name".  (can not do this during creation)
     const participant = await fetchParticipantById(payload.values[0].id);
+    console.log("Participant created successfully:", participant);
     return participant;
   } catch (error) {
     console.error("Error fetching contact by name:", error);
