@@ -38,14 +38,31 @@ export default function EventPage() {
   // — sorting
   const [sortByDate, _setSortByDate] = useState<"ASC" | "DESC" | null>(null);
   const [sortByTitle, _setSortByTitle] = useState<"ASC" | "DESC" | null>(null);
+  const [sortByEventId, _setSortByEventId] = useState<"ASC" | "DESC" | null>(
+    null
+  );
 
   const setSortByDate = (o: "ASC" | "DESC" | null) => {
     _setSortByDate(o);
-    if (o) _setSortByTitle(null);
+    if (o) {
+      _setSortByTitle(null);
+      _setSortByEventId(null);
+    }
   };
   const setSortByTitle = (o: "ASC" | "DESC" | null) => {
     _setSortByTitle(o);
-    if (o) _setSortByDate(null);
+    if (o) {
+      _setSortByDate(null);
+      _setSortByEventId(null);
+    }
+  };
+
+  const setSortByEventId = (o: "ASC" | "DESC" | null) => {
+    _setSortByEventId(o);
+    if (o) {
+      _setSortByDate(null);
+      _setSortByTitle(null);
+    }
   };
 
   // — build API path and fetch based on date
@@ -206,7 +223,11 @@ export default function EventPage() {
             duration={0.7}
             borderRadius={10}
           />
-        ) : (<div><h4>(Total: {eventList.length})</h4></div>)}
+        ) : (
+          <div>
+            <h4>(Total: {eventList.length})</h4>
+          </div>
+        )}
       </Flex>
 
       {/* search box */}
@@ -231,6 +252,8 @@ export default function EventPage() {
               setSortByTitle={setSortByTitle}
               sortByDate={sortByDate}
               setSortByDate={setSortByDate}
+              sortByEventId={sortByEventId}
+              setSortByEventId={setSortByEventId}
               eventList={eventList}
               setEventList={setEventList}
             />

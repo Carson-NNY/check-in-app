@@ -25,6 +25,8 @@ type EventListProps = {
   setSortByTitle: (sortBy: sortByType) => void;
   sortByDate: sortByType;
   setSortByDate: (sortBy: sortByType) => void;
+  sortByEventId: sortByType;
+  setSortByEventId: (sortBy: sortByType) => void;
 };
 
 //  render a list of events in Table component from Chakra UI
@@ -37,6 +39,8 @@ export default function EventList({
   setSortByTitle,
   sortByDate,
   setSortByDate,
+  sortByEventId,
+  setSortByEventId,
 }: EventListProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -69,7 +73,17 @@ export default function EventList({
               boxShadow="sm"
             >
               <Tr>
-                <Th>event_id</Th>
+                <Th>
+                  <SortByLetter
+                    sortOrder={sortByEventId}
+                    setSortOrder={setSortByEventId}
+                    sortList={eventList}
+                    setSortList={setEventList}
+                    sortTarget="eventId"
+                  >
+                    event_id
+                  </SortByLetter>
+                </Th>
                 <Th>
                   {/* Sort by title */}
                   <SortByLetter

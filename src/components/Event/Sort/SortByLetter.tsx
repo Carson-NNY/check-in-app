@@ -13,11 +13,12 @@ type SortByLetterProps = {
   | "eventTitle"
     | "participantFirstName"
     | "participantLastName"
-    | "participantStatus";
+    | "participantStatus"
+    | "eventId";
   children?: React.ReactNode;
 };
 
-export default function SortByLettparticipantStatuser({
+export default function SortByLetter({
   sortList,
   setSortList,
   sortOrder,
@@ -37,6 +38,10 @@ export default function SortByLettparticipantStatuser({
         let aKey: string, bKey: string;
 
         switch (sortTarget) {
+          case "eventId":
+            aKey = a.id.toString() ?? "";
+            bKey = b.id.toString() ?? "";
+            break;
           case "eventTitle":
             aKey = a.title ?? "";
             bKey = b.title ?? "";
