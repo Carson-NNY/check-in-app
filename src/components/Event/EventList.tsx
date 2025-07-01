@@ -118,7 +118,12 @@ export default function EventList({
                   }
                   _hover={{ bg: "gray.50" }}
                 >
-                  <Td>{event.id.toString()}</Td>
+                  <Td>
+                    <HighlightComponent
+                      text={event.id.toString()}
+                      highlight={highlight}
+                    />
+                  </Td>
                   <Td maxW="300px" whiteSpace="normal" wordBreak="break-word">
                     <HighlightComponent
                       text={event.title ? event.title : ""}

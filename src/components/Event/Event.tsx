@@ -159,7 +159,11 @@ export default function EventPage() {
   const displayedEvents = useMemo(() => {
     if (!deferredSearch.trim()) return eventList;
     const kw = deferredSearch.toLowerCase();
-    return eventList.filter((e) => (e.title ?? "").toLowerCase().includes(kw));
+    return eventList.filter((e) => {
+      const titleMatch = (e.title ?? "").toLowerCase().includes(kw);
+      const idMatch = (e.id ?? "").toString().toLowerCase().includes(kw);
+      return titleMatch || idMatch;
+    });
   }, [eventList, deferredSearch]);
 
   // reusable function to set year, month, and day
@@ -235,7 +239,7 @@ export default function EventPage() {
         <SearchBox
           search={search}
           setSearch={handleSearchChange}
-          placeholder="Search by titles"
+          placeholder="Local search by event_id or titles"
         />
       </div>
 

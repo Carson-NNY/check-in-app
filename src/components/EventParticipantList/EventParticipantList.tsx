@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { HighlightComponent } from "../Highlight/Highlight";
-import ParticipantDrawer from "../ParticipantDrawer";
 import { useToast } from "@chakra-ui/react";
 import Button from "../Button/Button";
 import SortByLetter from "../Event/Sort/SortByLetter";
