@@ -1,5 +1,10 @@
 import { create } from "domain";
-import { fetchContactByName, createContact, createPhone } from "./contacts";
+import {
+  fetchContactByName,
+  createContact,
+  createPhone,
+  createEmail,
+} from "./contacts";
 
 // construct the URLs and headers
 const PARTICIPANT_GET_URL = process.env.CIVICRM_BASE_URL + "/Participant/get";
@@ -181,6 +186,7 @@ export async function createParticipant(data: {
   middleName: string;
   contactType: string;
   phoneNumber: string;
+  email: string;
   source: string;
 }) {
   try {
@@ -190,26 +196,31 @@ export async function createParticipant(data: {
     if (!contact) {
       console.log("Contact not found, creating a new one...");
       try {
+        // separately creating contact and phone is find, since when we create a phone with
+        // corresponding contact_id, it will automatically update the contact's phone_primary (since phone.is_primary is true by default)
+        // the same is true  when we create email
         contact = await createContact(data);
         console.log("Contact created successfully with ID:", contact.id);
-        const phone = await createPhone(data.phoneNumber, contact.id);
-        // handle contact update phone_primary
-        if (contact && phone) {
-          console.log(
-            "Updating contact's primary phone... with phone ID:",
-            phone.id
-          );
 
-          contact = await fetchContactByName(data.firstName, data.lastName);
-          console.log("Contact updated with new phone:", contact);
+        if (data.phoneNumber) {
+          await createPhone(data.phoneNumber, contact.id);
         }
+        if (data.email) {
+          await createEmail(data.email, contact.id);
+        }
+        contact = await fetchContactByName(data.firstName, data.lastName);
+        console.log("Contact updated with new phone and new email:", contact);
       } catch (error) {
         console.error("Error creating a Contact:", error);
         throw error;
       }
-    } else if (contact.phone_primary.phone_numeric !== data.phoneNumber) {
-      // TODO: handle the case when if contact exists but phone number mismatch (update the contact's phone number)
     }
+
+    // if contact exists, check if the phone number matches
+    // if contact exists but phone number mismatch, update the contact's phone number
+    // we can just create a new phone, since the phone.is_primary is true by default
+    // and it will automatically update the contact's phone_primary
+    await handleMismtachPhoneOrEmail(data, contact);
 
     // create a new participant
     const res = await fetch(PARTICIPANT_CREATE_URL, {
@@ -244,5 +255,43 @@ export async function createParticipant(data: {
   } catch (error) {
     console.error("Error fetching contact by name:", error);
     throw error;
+  }
+}
+async function handleMismtachPhoneOrEmail(
+  data: {
+    eventId: string;
+    status: string;
+    lastName: string;
+    firstName: string;
+    middleName: string;
+    contactType: string;
+    phoneNumber: string;
+    email: string;
+    source: string;
+  },
+  contact: any
+) {
+  if (data.phoneNumber && contact["phone_primary.phone"] !== data.phoneNumber) {
+    console.log(
+      "Contact exists but phone number mismatch, updating the phone number..."
+    );
+    try {
+      const phone = await createPhone(data.phoneNumber, contact.id);
+      console.log("Contact updated with new phone:", contact);
+    } catch (error) {
+      console.error("Error updating contact's phone:", error);
+      throw error;
+    }
+  }
+
+  if (data.email && contact["email_primary.email"] !== data.email) {
+    console.log("Contact exists but email mismatch, updating the email...");
+    try {
+      await createEmail(data.email, contact.id);
+      console.log("Contact updated with new email:", contact);
+    } catch (error) {
+      console.error("Error updating contact's email:", error);
+      throw error;
+    }
   }
 }

@@ -1,8 +1,8 @@
 // construct the URLs and headers
 const CONTACT_CREATE_URL = process.env.CIVICRM_BASE_URL + "/Contact/create";
 const CONTACT_GET_URL = process.env.CIVICRM_BASE_URL + "/Contact/get";
-const CONTACT_UPDATE_URL = process.env.CIVICRM_BASE_URL + "/Contact/update";
 const PHONE_CREATE_URL = process.env.CIVICRM_BASE_URL + "/Phone/create";
+const EMAIL_CREATE_URL = process.env.CIVICRM_BASE_URL + "/Email/create";
 const API_KEY = process.env.CIVICRM_API_KEY || "";
 
 const HEADER = {
@@ -63,7 +63,7 @@ export async function fetchContactByName(firstName: string, lastName: string) {
       body: new URLSearchParams({
         api_key: API_KEY,
         params: JSON.stringify({
-          select: ["*", "phone_primary.phone"],
+          select: ["*", "phone_primary.phone", "email_primary.email"],
           where: [
             ["first_name", "=", firstName],
             ["last_name", "=", lastName],
@@ -161,10 +161,7 @@ export async function createPhone(phoneNumber: string, contactId: string) {
             phone: phoneData.phone, // formatted phone number as xxx-xxx-xxxx
             contact_id: contactId,
             location_type_id: 3, // we assume 3 which is "Main" as the default location type
-            // "location_type_id:description": "Main office location",
-            // "location_type_id:label": "Main",
-            // "location_type_id:name": "Main",
-            // "location_type_id:abbr": "Main",
+            is_primary: true, // set this phone as primary
           },
         }),
       }),
@@ -178,10 +175,47 @@ export async function createPhone(phoneNumber: string, contactId: string) {
 
     const payload = await res.json();
     console.log("raw phone payload:", payload);
-    // console.log("Phone created successfully:", payload.values[0]);
     return payload.values[0];
   } catch (error) {
     console.error("Error creating Phone:", error);
+    throw error;
+  }
+}
+
+export async function createEmail(email: string, contactId: string) {
+  if (!email || email.trim() === "") {
+    console.warn("No valid email provided, skipping email creation.");
+    return null;
+  }
+
+  try {
+    const res = await fetch(EMAIL_CREATE_URL, {
+      method: "POST",
+      headers: HEADER,
+      body: new URLSearchParams({
+        api_key: API_KEY,
+        params: JSON.stringify({
+          values: {
+            email: email,
+            contact_id: contactId,
+            location_type_id: 3, // we assume 3 which is "Main" as the default location type
+            is_primary: true, // set this email as primary
+          },
+        }),
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to create Email", {
+        cause: res.statusText,
+      });
+    }
+
+    const payload = await res.json();
+    console.log("raw email payload:", payload);
+    return payload.values[0];
+  } catch (error) {
+    console.error("Error creating Email:", error);
     throw error;
   }
 }

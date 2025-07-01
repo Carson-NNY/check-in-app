@@ -16,6 +16,11 @@ export const ParticipantSchema = z
       .length(10, "phoneNumber must be 10 digits")
       .optional()
       .or(z.literal("")),
+    email: z
+      .string()
+      .email("Invalid email format")
+      .optional()
+      .or(z.literal("")),
     source: z.string().optional().or(z.literal("")),
   })
   .strict()
@@ -24,6 +29,7 @@ export const ParticipantSchema = z
     for (const k of Object.keys(data) as (keyof typeof data)[]) {
       if (typeof data[k] === "string") data[k] = data[k].trim() as any;
     }
+    console.log("email---------:", data.email);
     return data;
   });
 
