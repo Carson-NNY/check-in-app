@@ -53,7 +53,7 @@ export async function fetchEventsByDateRange(start: string, end: string) {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to fetch events by year", {
+      throw new Error("Failed to fetch events by date range", {
         cause: res.statusText,
       });
     }
@@ -62,6 +62,36 @@ export async function fetchEventsByDateRange(start: string, end: string) {
     return data.values;
   } catch (error) {
     console.error("Error in fetchEventsByRange:", error);
+    throw error;
+  }
+}
+
+// Fetch a specific event by its ID
+export async function fetchEventById(event_id: string) {
+  try {
+    const res = await fetch(EVENT_GET_URL, {
+      method: "POST",
+      headers: HEADER,
+      body: new URLSearchParams({
+        api_key: API_KEY,
+        params: JSON.stringify({
+          select: ["*"],
+          where: [["id", "=", event_id]],
+          limit: 1,
+        }),
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch event by ID", {
+        cause: res.statusText,
+      });
+    }
+
+    const data = await res.json();
+    return data.values;
+  } catch (error) {
+    console.error("Error in fetchEventById:", error);
     throw error;
   }
 }

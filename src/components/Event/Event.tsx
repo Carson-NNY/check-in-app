@@ -6,7 +6,8 @@ import DateFilters from "@/components/Event/Filters/DateFilter";
 import EventList from "./EventList";
 import styles from "./Event.module.css";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
-import SearchBox from "../SearchBox/SearchBox";
+import LocalSearchBox from "../SearchBox/LocalSearchBox";
+import GlobalSearchBox from "../SearchBox/GlobalSearchBox";
 import useDebounce from "@/hooks/useDebounce";
 import Button from "../Button/Button";
 import LogoutButton from "@/components/Button/LogoutButton";
@@ -68,7 +69,7 @@ export default function EventPage() {
   // — build API path and fetch based on date
   const fetchEvents = async (y: string, m?: string, d?: string) => {
     setIsLoading(true);
-    let path = `/api/events/${y}`;
+    let path = `/api/events/date/${y}`;
     if (m) path += `/${m}`;
     if (d) path += `/${d}`;
     try {
@@ -97,8 +98,7 @@ export default function EventPage() {
     [params, router]
   );
 
-  // — init from URL
-  useEffect(() => {
+  const fetchEventByURL = useCallback(() => {
     const uYear = params.get("year") || "";
     const uMonth = params.get("month") || "";
     const uDay = params.get("day") || "";
@@ -129,8 +129,12 @@ export default function EventPage() {
       setSelectedDate(now);
       fetchEvents(y, m, d);
     }
-    // run only once
-  }, []);
+  }, [params]);
+
+  // — fetch events on mount or when URL changes
+  useEffect(() => {
+    fetchEventByURL();
+  }, [fetchEventByURL]);
 
   // — handlers for date filters
   const handleDateSearch = () => {
@@ -173,9 +177,20 @@ export default function EventPage() {
     setDay(d || "");
   };
 
+  const handleSearchEventById = async () => {
+    try {
+      await fetch(`/api/events/10611`);
+    } catch (error) {
+      console.error("Failed to navigate:", error);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <LogoutButton />
+      <Button pattern="blueOutline" onClick={handleSearchEventById}>
+        test Search event by ID
+      </Button>
 
       {/* filters + today button */}
       <Flex width="100%" justify="space-between" align="center">
@@ -215,6 +230,14 @@ export default function EventPage() {
           Today’s Events
         </Button>
       </Flex>
+      <div className={styles.searchBox}>
+        <GlobalSearchBox
+          search={search}
+          originalList={eventList}
+          setOriginalList={setEventList}
+          placeholder="Global search by event id"
+        />
+      </div>
 
       {/* title + count */}
       <Flex width="100%" justify="center" align="center" gap={2}>
@@ -236,7 +259,7 @@ export default function EventPage() {
 
       {/* search box */}
       <div className={styles.searchBox}>
-        <SearchBox
+        <LocalSearchBox
           search={search}
           setSearch={handleSearchChange}
           placeholder="Local search by event_id or titles"

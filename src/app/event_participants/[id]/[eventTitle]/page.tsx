@@ -5,7 +5,7 @@ import EventParticipantList from "@/components/EventParticipantList/EventPartici
 import { useState, useEffect, useMemo } from "react";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import useDebounce from "@/hooks/useDebounce";
-import SearchBox from "@/components/SearchBox/SearchBox";
+import LocalSearchBox from "@/components/SearchBox/LocalSearchBox";
 import LogoutButton from "@/components/Button/LogoutButton";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
@@ -145,7 +145,7 @@ export default function EventParticipants() {
       </h2>
       <div className={styles.searchBox}>
         <Flex direction="column" gap={4} w="100%">
-          <SearchBox
+          <LocalSearchBox
             search={search}
             setSearch={setSearch}
             placeholder="Search by names"

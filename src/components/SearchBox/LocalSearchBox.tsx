@@ -14,7 +14,7 @@ type SearchBoxProps = {
 };
 
 // A resuable search box component with a search icon and a clear button
-export default function SearchBox({
+export default function LocalSearchBox({
   search,
   setSearch,
   placeholder,

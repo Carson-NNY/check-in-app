@@ -107,17 +107,18 @@ export default function ParticipantDrawer({
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader>Create Participant</DrawerHeader>
-          <DrawerHeader style={{ display: "flex", justifyContent: "normal" }}>
+          <DrawerHeader style={{ display: "flex", justifyContent: "right" }}>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button
+              ml={3}
               colorScheme="blue"
               type="submit"
               form="participant-form"
               isLoading={loading}
             >
               Submit
-            </Button>
-            <Button variant="outline" ml={3} onClick={onClose}>
-              Cancel
             </Button>
           </DrawerHeader>
           <DrawerBody>
