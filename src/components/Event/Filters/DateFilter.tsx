@@ -46,6 +46,10 @@ export default function DateFilters({
         placeholder="Year"
         value={year}
         onChange={(e) => onYearChange(e.target.value)}
+        onClick={() => {
+          onMonthChange("");
+          onDayChange("");
+        }}
         width="100px"
       >
         {Array.from({ length: 30 }, (_, i) => currentYear - 10 + i).map((y) => {
@@ -54,7 +58,8 @@ export default function DateFilters({
             <option
               key={y}
               value={ys}
-              onMouseDown={() => {
+              // note: onClick is not fired when on mobile
+              onClick={() => {
                 if (ys === year) {
                   onMonthChange("");
                   onDayChange("");
@@ -72,6 +77,9 @@ export default function DateFilters({
         placeholder="Month"
         value={month}
         onChange={(e) => onMonthChange(e.target.value)}
+        onClick={() => {
+          onDayChange("");
+        }}
         isDisabled={!year}
         width="80px"
       >
@@ -79,15 +87,7 @@ export default function DateFilters({
           String(i + 1).padStart(2, "0")
         ).map((m) => {
           return (
-            <option
-              key={m}
-              value={m}
-              onMouseDown={() => {
-                if (m === month) {
-                  onDayChange("");
-                }
-              }}
-            >
+            <option key={m} value={m}>
               {m}
             </option>
           );

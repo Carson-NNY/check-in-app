@@ -11,12 +11,14 @@ import { SearchIcon, CloseIcon } from "@chakra-ui/icons";
 type GlobalSearchBoxProps = {
   handleRenderEventList: () => void;
   setOriginalList: (list: any[]) => void;
+  setIsLoading: (loading: boolean) => void;
   placeholder: string;
 };
 
 export default function GlobalSearchBox({
   handleRenderEventList,
   setOriginalList,
+  setIsLoading,
   placeholder,
 }: GlobalSearchBoxProps) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,6 +31,7 @@ export default function GlobalSearchBox({
 
   const handleSearch = async (eventId: string) => {
     try {
+      setIsLoading(true);
       const event = await fetch(`/api/events/${eventId}`);
       const eventData = await event.json();
       if (eventData) {
@@ -38,6 +41,8 @@ export default function GlobalSearchBox({
       }
     } catch (error) {
       console.error("Failed to navigate:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

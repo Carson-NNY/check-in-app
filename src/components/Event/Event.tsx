@@ -232,6 +232,7 @@ export default function EventPage() {
         <GlobalSearchBox
           handleRenderEventList={fetchEventByURL}
           setOriginalList={setEventList}
+          setIsLoading={setIsLoading}
           placeholder="Global search by event id"
         />
       </div>
