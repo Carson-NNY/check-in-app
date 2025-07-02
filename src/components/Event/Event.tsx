@@ -106,7 +106,6 @@ export default function EventPage() {
   );
 
   const fetchEventByURL = useCallback(() => {
-    console.log("fetchEventByURL called");
     const uYear = params.get("year") || "";
     const uMonth = params.get("month") || "";
     const uDay = params.get("day") || "";
@@ -199,7 +198,7 @@ export default function EventPage() {
           day={day}
           selectedDate={selectedDate}
           onYearChange={(y) => {
-            setYearMonthDay(y);
+            setYearMonthDay(y, "", "");
             setSelectedDate(new Date(Number(y), 0, 1));
           }}
           onMonthChange={(m) => {
@@ -231,7 +230,6 @@ export default function EventPage() {
       </Flex>
       <div className={styles.searchBox}>
         <GlobalSearchBox
-          search={search}
           handleRenderEventList={fetchEventByURL}
           setOriginalList={setEventList}
           placeholder="Global search by event id"

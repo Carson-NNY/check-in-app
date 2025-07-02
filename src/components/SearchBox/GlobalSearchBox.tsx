@@ -9,19 +9,17 @@ import {
 import { SearchIcon, CloseIcon } from "@chakra-ui/icons";
 
 type GlobalSearchBoxProps = {
-  search: string;
   handleRenderEventList: () => void;
   setOriginalList: (list: any[]) => void;
   placeholder: string;
 };
 
 export default function GlobalSearchBox({
-  search,
   handleRenderEventList,
   setOriginalList,
   placeholder,
 }: GlobalSearchBoxProps) {
-  const [searchTerm, setSearchTerm] = useState(search);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (!searchTerm.trim()) {

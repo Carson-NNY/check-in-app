@@ -48,11 +48,23 @@ export default function DateFilters({
         onChange={(e) => onYearChange(e.target.value)}
         width="100px"
       >
-        {Array.from({ length: 30 }, (_, i) => currentYear - 10 + i).map((y) => (
-          <option key={y} value={y}>
-            {y}
-          </option>
-        ))}
+        {Array.from({ length: 30 }, (_, i) => currentYear - 10 + i).map((y) => {
+          const ys = String(y);
+          return (
+            <option
+              key={y}
+              value={ys}
+              onMouseDown={() => {
+                if (ys === year) {
+                  onMonthChange("");
+                  onDayChange("");
+                }
+              }}
+            >
+              {y}
+            </option>
+          );
+        })}
       </Select>
 
       {/* month dropdown */}
@@ -65,11 +77,21 @@ export default function DateFilters({
       >
         {Array.from({ length: 12 }, (_, i) =>
           String(i + 1).padStart(2, "0")
-        ).map((m) => (
-          <option key={m} value={m}>
-            {m}
-          </option>
-        ))}
+        ).map((m) => {
+          return (
+            <option
+              key={m}
+              value={m}
+              onMouseDown={() => {
+                if (m === month) {
+                  onDayChange("");
+                }
+              }}
+            >
+              {m}
+            </option>
+          );
+        })}
       </Select>
 
       {/* day dropdown */}
