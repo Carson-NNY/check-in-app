@@ -21,26 +21,46 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, EmailIcon } from "@chakra-ui/icons";
 import { useToast } from "@chakra-ui/react";
+import ModalComponent from "./Modal/ModalComponent";
 
 type ParticipantDrawerProps = {
   eventId: string;
+  participants: any[];
   setParticipants: React.Dispatch<React.SetStateAction<any[]>>;
   participantRoles?: any[];
 };
 
 export default function ParticipantDrawer({
   eventId,
+  participants,
   setParticipants,
   participantRoles,
 }: ParticipantDrawerProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure(); // for the drawer
+  const {
+    isOpen: isModalOpen,
+    onOpen: onModalOpen,
+    onClose: onModalClose,
+  } = useDisclosure(); // for the modal popover
+
+  const [pendingPayload, setPendingPayload] = useState<{
+    eventId: string;
+    status: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    email: string;
+    source: string;
+    participantRole: string;
+  } | null>(null);
+
   const firstField = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  const [existingParticipant, setExistingParticipant] = useState<any>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
 
     const form = e.currentTarget;
     const payload = {
@@ -54,6 +74,31 @@ export default function ParticipantDrawer({
       participantRole: form.participantRole.value,
     };
 
+    // iterate over the participants and see if the participant already exists
+    const existing = participants.find((participant) => {
+      const first = participant["contact_id.first_name"]?.trim().toLowerCase();
+      const last = participant["contact_id.last_name"]?.trim().toLowerCase();
+
+      const payloadFirst = payload.firstName.trim().toLowerCase();
+      const payloadLast = payload.lastName.trim().toLowerCase();
+
+      return first === payloadFirst && last === payloadLast;
+    });
+
+    if (existing) {
+      setExistingParticipant(existing);
+      console.log("Participant already exists:", existing);
+      setPendingPayload(payload);
+      onModalOpen();
+      return;
+    }
+
+    // If no existing participant, proceed to add the new participant
+    await addParticipant(payload);
+  }
+
+  async function addParticipant(payload: any) {
+    setLoading(true);
     const res = await fetch("/api/newParticipant", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -87,8 +132,25 @@ export default function ParticipantDrawer({
       });
     }
 
+    setPendingPayload(null);
     setLoading(false);
   }
+
+  const handleModalConfirm = async () => {
+    onModalClose();
+    if (pendingPayload) {
+      await addParticipant(pendingPayload);
+    }
+    setPendingPayload(null);
+    setExistingParticipant(null);
+    onClose();
+  };
+
+  const handleModalCancel = () => {
+    setPendingPayload(null);
+    setExistingParticipant(null);
+    onModalClose();
+  };
 
   return (
     <>
@@ -120,6 +182,15 @@ export default function ParticipantDrawer({
             >
               Submit
             </Button>
+            {/* display Modal when a possible duplicate is detected */}
+            <ModalComponent
+              isOpen={isModalOpen}
+              onClose={onModalClose}
+              onConfirm={handleModalConfirm}
+              onCancel={handleModalCancel}
+              existingParticipant={existingParticipant}
+              setExistingParticipant={setExistingParticipant}
+            />
           </DrawerHeader>
           <DrawerBody>
             <form id="participant-form" onSubmit={handleSubmit}>

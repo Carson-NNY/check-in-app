@@ -152,6 +152,7 @@ export default function EventParticipants() {
           />
           <ParticipantDrawer
             eventId={eventId}
+            participants={participants}
             setParticipants={setParticipants}
             participantRoles={participantRoles}
           />
