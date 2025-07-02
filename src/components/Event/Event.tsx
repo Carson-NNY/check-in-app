@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DateFilters from "@/components/Event/Filters/DateFilter";
 import EventList from "./EventList";
@@ -18,6 +24,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 export default function EventPage() {
   const router = useRouter();
   const params = useSearchParams();
+  const didFetchRef = useRef(false);
 
   // — search
   const [search, setSearch] = useState("");
@@ -99,6 +106,7 @@ export default function EventPage() {
   );
 
   const fetchEventByURL = useCallback(() => {
+    console.log("fetchEventByURL called");
     const uYear = params.get("year") || "";
     const uMonth = params.get("month") || "";
     const uDay = params.get("day") || "";
@@ -133,6 +141,8 @@ export default function EventPage() {
 
   // — fetch events on mount or when URL changes
   useEffect(() => {
+    if (didFetchRef.current) return;
+    didFetchRef.current = true;
     fetchEventByURL();
   }, [fetchEventByURL]);
 
@@ -177,20 +187,9 @@ export default function EventPage() {
     setDay(d || "");
   };
 
-  const handleSearchEventById = async () => {
-    try {
-      await fetch(`/api/events/10611`);
-    } catch (error) {
-      console.error("Failed to navigate:", error);
-    }
-  };
-
   return (
     <div className={styles.page}>
       <LogoutButton />
-      <Button pattern="blueOutline" onClick={handleSearchEventById}>
-        test Search event by ID
-      </Button>
 
       {/* filters + today button */}
       <Flex width="100%" justify="space-between" align="center">
@@ -233,7 +232,7 @@ export default function EventPage() {
       <div className={styles.searchBox}>
         <GlobalSearchBox
           search={search}
-          originalList={eventList}
+          handleRenderEventList={fetchEventByURL}
           setOriginalList={setEventList}
           placeholder="Global search by event id"
         />

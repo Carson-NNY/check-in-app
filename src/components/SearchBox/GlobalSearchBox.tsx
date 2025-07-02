@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import {
   Input,
   InputGroup,
@@ -10,18 +10,24 @@ import { SearchIcon, CloseIcon } from "@chakra-ui/icons";
 
 type GlobalSearchBoxProps = {
   search: string;
-  originalList: any[];
+  handleRenderEventList: () => void;
   setOriginalList: (list: any[]) => void;
   placeholder: string;
 };
 
 export default function GlobalSearchBox({
   search,
-  originalList,
+  handleRenderEventList,
   setOriginalList,
   placeholder,
 }: GlobalSearchBoxProps) {
   const [searchTerm, setSearchTerm] = useState(search);
+
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      handleRenderEventList();
+    }
+  }, [searchTerm]);
 
   const handleSearch = async (eventId: string) => {
     try {
@@ -40,6 +46,7 @@ export default function GlobalSearchBox({
   // Clear the search input and refetch the original list
   const handleClear = () => {
     setSearchTerm("");
+    handleRenderEventList();
   };
 
   return (
