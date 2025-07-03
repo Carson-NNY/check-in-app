@@ -1,11 +1,11 @@
 // src/app/api/events/[...date]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { fetchEventsByDateRange, fetchEventById } from "@/services/events";
+import { fetchEventById } from "@/services/events";
 
 // API route to fetch events by date range
 export async function GET(
   request: NextRequest,
-  { params }: { params: { eventId: string } }
+  { params }: { params: Promise<{ eventId: string }> }
 ): Promise<NextResponse> {
   const { eventId } = await params;
 

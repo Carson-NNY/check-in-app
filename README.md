@@ -26,6 +26,8 @@
 - **Chakra UI** for UI components
 - **TypeScript** for static typing
 - **Zod** for declarative schema validation
+- **Nodemailer** for sending transactional emails
+- **json2csv** for CSV export functionality
 
 ---
 
@@ -38,11 +40,16 @@
    ```
 
 2. **Create and set enviornment variables in .env.local under root directory**
+
    ```bash
    MOMATH_CHECKIN_PASSWORD=<Password for login page>
    CIVICRM_API_KEY=<CIVI API KEY>
    CIVICRM_BASE_URL=https://sandbox.momath.org/civicrm/ajax/api4 (if use sandbox for testing)
+   EMAIL_USER=<email sender>
+   EMAIL_PASS=<email password>
+   NEXT_PUBLIC_ADMIN_EMAIL=<email receiver>
    ```
+
 3. **Install dependencies**
 
    ```bash
@@ -60,6 +67,10 @@
    npm install @chakra-ui/icons react-loading-skeleton
    npm install zod
    npm install react-datepicker
+   npm install json2csv
+   npm install --save-dev @types/json2csv
+   npm install nodemailer
+   npm i --save-dev @types/nodemailer
    ```
 
 5. **Run the dev server**
@@ -122,11 +133,17 @@
 │     │     └─ route.ts
 │     ├─ newParticipant/
 │     │  └─ route.ts
+│     ├─ roles/
+│     │  └─ route.ts
+│     ├─ sendEmail/
+│     │  └─ route.ts
 ├─ components
 │  ├─ Button/
 │  │  ├─ Button.tsx
 │  │  ├─ Button.module.css
 │  │  └─ LogoutButton.tsx
+│  ├─ Modal/
+│  │  ├─ ModalComponent.tsx
 │  ├─ CheckinModal.tsx
 │  ├─ EventParticipantList/
 │  │  └─ EventParticipantList.tsx
@@ -186,6 +203,7 @@ Reusable UI building blocks, including:
 - **`EventParticipantList/`**: Table/list of participants with status updates.
 - **`Event/`**: Event cards, lists, plus nested Filters & Sort components.
 - **`Footer/`**: Site footer.
+- **`Modal/`**: Confirmation modal when sending the report
 - **`Highlight/`**: Highlights search matches in titles.
 - **`ParticipantDrawer.tsx`**: Slide-in form to add a new participant.
 - **`SearchBox/`**: Debounced text input for title search.
@@ -199,9 +217,9 @@ Reusable UI building blocks, including:
 
 Abstracts API calls:
 
-- **`events.ts`**: Fetch events by date.
-- **`participants.ts`**: Create and fetch participants.
-- **`contacts.ts`**: Create or lookup CiviCRM contacts.
+- **`events.ts`**: CiviCRM events related operations.
+- **`participants.ts`**: CiviCRM participants related operations.
+- **`contacts.ts`**: CiviCRM contacts related operations.
 
 ### `/src/schemas`
 
@@ -223,5 +241,7 @@ Checks authentication cookie on every request; redirects to `/login` if unauthen
 | GET    | `/api/eventParticipants/[event_id]` | Retrieve participants for an event     |
 | POST   | `/api/statusUpdate/[id]/[status]`   | Update a participant’s check-in status |
 | POST   | `/api/newParticipant`               | Create a new participant record        |
+| POST   | `/api/roles`                        | Fetch the participant roles            |
+| POST   | `/api/sendEmail`                    | Send the email report                  |
 
 ---

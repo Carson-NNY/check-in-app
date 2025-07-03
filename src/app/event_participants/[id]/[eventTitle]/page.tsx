@@ -14,6 +14,7 @@ import Button from "@/components/Button/Button";
 import { SkeletonCircle, Flex } from "@chakra-ui/react";
 import ParticipantDrawer from "@/components/ParticipantDrawer";
 import { useToast } from "@chakra-ui/react";
+import { MdOutlineMarkEmailRead } from "react-icons/md";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -154,9 +155,20 @@ export default function EventParticipants() {
     setIsReportLoading(true);
     const newlyAddedParticipants = participants.filter((p) => p.isNewlyAdded);
     if (!newlyAddedParticipants || newlyAddedParticipants.length === 0) {
-      alert("No newly added participants to send email to.");
+      setIsReportLoading(false);
+      onClose();
+      toast({
+        title: "No Participants",
+        description:
+          "There are no newly added participants or they have already been emailed.",
+        status: "info",
+        duration: 3000, // disappears after 3s
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
+
     try {
       const res = await fetch("/api/sendEmail/", {
         method: "POST",
@@ -182,6 +194,16 @@ export default function EventParticipants() {
         isClosable: true,
         position: "top",
       });
+      // remove the newly added participants from local storage
+      const key = `newParticipants-${eventId}`;
+      localStorage.removeItem(key);
+      // update the participants state to remove the newly added flag
+      setParticipants((prev) =>
+        prev.map((p) => ({
+          ...p,
+          isNewlyAdded: false,
+        }))
+      );
     } catch (error) {
       console.error("Error sending email:", error);
       toast({
@@ -233,7 +255,11 @@ export default function EventParticipants() {
             closeOnBlur={false}
           >
             <PopoverTrigger>
-              <ChakraButton colorScheme="green" width={"100px"}>
+              <ChakraButton
+                colorScheme="teal"
+                width={"100px"}
+                leftIcon={<MdOutlineMarkEmailRead />}
+              >
                 Report
               </ChakraButton>
             </PopoverTrigger>
@@ -256,7 +282,7 @@ export default function EventParticipants() {
                     Cancel
                   </ChakraButton>
                   <ChakraButton
-                    colorScheme="green"
+                    colorScheme="teal"
                     onClick={handleSendEmail}
                     isLoading={isReportLoading}
                   >
