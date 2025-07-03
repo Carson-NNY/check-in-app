@@ -102,6 +102,7 @@ export async function fetchParticipantByEventId(eventId: any) {
             "contact_id.first_name", // implicit join
             "contact_id.last_name", // implicit join
             "contact_id.phone_primary.phone", // nested implicit join
+            "contact_id.email_primary.email", // nested implicit join
             // "contact_id.email_primary.email", // nested implicit join
             //   "*",
             //   "fee_level",
@@ -152,6 +153,7 @@ export async function fetchParticipantById(participantId: string) {
             "contact_id.first_name",
             "contact_id.last_name",
             "contact_id.phone_primary.phone",
+            "contact_id.email_primary.email",
             "role_id:name",
           ],
           where: [["id", "=", participantId]],

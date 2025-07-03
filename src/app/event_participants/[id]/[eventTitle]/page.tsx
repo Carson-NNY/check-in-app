@@ -13,6 +13,7 @@ import { Box } from "@chakra-ui/react";
 import Button from "@/components/Button/Button";
 import { SkeletonCircle, Flex } from "@chakra-ui/react";
 import ParticipantDrawer from "@/components/ParticipantDrawer";
+import { useToast } from "@chakra-ui/react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -23,7 +24,22 @@ import {
   StatHelpText,
   StatArrow,
   StatGroup,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverFooter,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverAnchor,
+  Button as ChakraButton,
+  Text,
+  useDisclosure,
+  HStack,
 } from "@chakra-ui/react";
+
+const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "No Admin Email Set";
 
 // the page that shows the participants of a specific event
 export default function EventParticipants() {
@@ -31,6 +47,10 @@ export default function EventParticipants() {
   const params = useParams();
   const rawId = params.id;
   const rawTitle = params.eventTitle;
+
+  const toast = useToast();
+  const [isReportLoading, setIsReportLoading] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   // Handle the case where params.id or params.eventTitle might be an array or undefined
   const eventId = Array.isArray(rawId) ? rawId[0] : rawId ?? "";
@@ -95,8 +115,16 @@ export default function EventParticipants() {
           throw new Error(`Status: ${response.status}, Cause: ${errorText}`);
         }
 
+        // flag the newly added participants so we know which ones we should send in an email
         const data = await response.json();
-        setParticipants(Array.isArray(data) ? data : []);
+        const key = `newParticipants-${eventId}`;
+        const newlyAddedIds = JSON.parse(localStorage.getItem(key) || "[]");
+        const updatedData = data.map((participant: any) => ({
+          ...participant,
+          isNewlyAdded: newlyAddedIds.includes(participant.id),
+        }));
+
+        setParticipants(Array.isArray(updatedData) ? updatedData : []);
         const participantRolesResponse = await fetch("/api/roles");
 
         if (!participantRolesResponse.ok) {
@@ -122,23 +150,50 @@ export default function EventParticipants() {
     fetchData();
   }, [eventId]);
 
-  const handleSendEmail = async (participantName?: string) => {
+  const handleSendEmail = async () => {
+    setIsReportLoading(true);
+    const newlyAddedParticipants = participants.filter((p) => p.isNewlyAdded);
+    if (!newlyAddedParticipants || newlyAddedParticipants.length === 0) {
+      alert("No newly added participants to send email to.");
+      return;
+    }
     try {
-      const res = await fetch(`/api/sendEmail/${participantName}`, {
+      const res = await fetch("/api/sendEmail/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          eventId,
+          eventTitle,
+          participants: newlyAddedParticipants,
+        }),
       });
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`Status: ${res.status}, Cause: ${errorText}`);
       }
       const data = await res.json();
-      console.log("Email sent successfully:", data);
-      alert("Email sent successfully!");
+      toast({
+        title: "Success!",
+        description: `Newly added participants report has been sent to ${adminEmail} successfully.`,
+        status: "success",
+        duration: 3000, //  disappears after 3s
+        isClosable: true,
+        position: "top",
+      });
     } catch (error) {
       console.error("Error sending email:", error);
+      toast({
+        title: "Error",
+        description: "Could not send report. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      onClose();
+      setIsReportLoading(false);
     }
   };
 
@@ -170,9 +225,48 @@ export default function EventParticipants() {
       </h2>
       <div className={styles.searchBox}>
         <Flex direction="column" gap={4} w="100%">
-          <Button pattern="teal" onClick={() => handleSendEmail("heyhahh")}>
-            Send Email
-          </Button>
+          <Popover
+            isOpen={isOpen}
+            onOpen={onOpen}
+            onClose={onClose}
+            placement="bottom"
+            closeOnBlur={false}
+          >
+            <PopoverTrigger>
+              <ChakraButton colorScheme="green" width={"100px"}>
+                Report
+              </ChakraButton>
+            </PopoverTrigger>
+
+            <PopoverContent p={4}>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <PopoverHeader fontWeight="bold">Send Report?</PopoverHeader>
+
+              <PopoverBody>
+                <Text>
+                  You’re about to send a report of newly added participants to{" "}
+                  {adminEmail}.
+                </Text>
+              </PopoverBody>
+
+              <PopoverFooter border="0" justifyContent="flex-end" pt={0}>
+                <HStack spacing={2}>
+                  <ChakraButton variant="outline" onClick={onClose}>
+                    Cancel
+                  </ChakraButton>
+                  <ChakraButton
+                    colorScheme="green"
+                    onClick={handleSendEmail}
+                    isLoading={isReportLoading}
+                  >
+                    Confirm
+                  </ChakraButton>
+                </HStack>
+              </PopoverFooter>
+            </PopoverContent>
+          </Popover>
+
           <LocalSearchBox
             search={search}
             setSearch={setSearch}

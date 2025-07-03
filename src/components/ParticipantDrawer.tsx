@@ -108,8 +108,17 @@ export default function ParticipantDrawer({
     if (res.ok) {
       const newParticipant = await res.json();
       // I want to add a new field to the newParticipant object
-      newParticipant["isNewlyAdded"] = true;
+      newParticipant.isNewlyAdded = true;
       setParticipants((prev) => [newParticipant, ...prev]);
+
+      // store the id of the new participant in local storage
+      const key = `newParticipants-${eventId}`;
+      const list = JSON.parse(localStorage.getItem(key) || "[]");
+      localStorage.setItem(
+        key,
+        JSON.stringify([...new Set([...list, newParticipant.id])])
+      );
+
       toast({
         title: "Success!",
         description: `${newParticipant["contact_id.sort_name"]} has been added successfully.`,
