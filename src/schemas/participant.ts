@@ -26,7 +26,6 @@ export const ParticipantSchema = z
     for (const k of Object.keys(data) as (keyof typeof data)[]) {
       if (typeof data[k] === "string") data[k] = data[k].trim() as any;
     }
-    console.log("email---------:", data.email);
     return data;
   });
 

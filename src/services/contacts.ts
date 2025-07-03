@@ -47,7 +47,6 @@ export async function createContact(data: {
       });
     }
     const payload = await res.json();
-    console.log("create a new Contact  successfully");
     return payload.values[0];
   } catch (error) {
     console.error("Error creating a Contact:", error);
@@ -159,7 +158,7 @@ export async function createPhone(phoneNumber: string, contactId: string) {
     }
 
     const payload = await res.json();
-    console.log("raw phone payload:", payload);
+    // console.log("raw phone payload:", payload);
     return payload.values[0];
   } catch (error) {
     console.error("Error creating Phone:", error);
@@ -197,7 +196,7 @@ export async function createEmail(email: string, contactId: string) {
     }
 
     const payload = await res.json();
-    console.log("raw email payload:", payload);
+    // console.log("raw email payload:", payload);
     return payload.values[0];
   } catch (error) {
     console.error("Error creating Email:", error);
