@@ -107,6 +107,8 @@ export default function ParticipantDrawer({
 
     if (res.ok) {
       const newParticipant = await res.json();
+      // I want to add a new field to the newParticipant object
+      newParticipant["isNewlyAdded"] = true;
       setParticipants((prev) => [newParticipant, ...prev]);
       toast({
         title: "Success!",

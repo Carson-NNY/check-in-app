@@ -59,10 +59,13 @@ export async function GET(
   try {
     const events = await fetchEventsByDateRange(start, end);
     return NextResponse.json(events);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in /api/events/[...date]", error);
     return NextResponse.json(
-      { error: `Error in /api/events/[...date] — ${error}` },
+      {
+        error: `Error in /api/events/[...date] — ${error}`,
+        cause: error.cause ? error.cause.toString() : undefined,
+      },
       { status: 500 }
     );
   }

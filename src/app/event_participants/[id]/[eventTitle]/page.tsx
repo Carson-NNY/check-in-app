@@ -84,12 +84,14 @@ export default function EventParticipants() {
 
   useEffect(() => {
     if (!eventId) return;
+
     const fetchData = async () => {
       try {
         // make the API call from the server side
         const response = await fetch(`/api/eventParticipants/${eventId}`);
         if (!response.ok) {
           const errorText = await response.text();
+          setError(`Status: ${response.status}, Cause: ${errorText}`);
           throw new Error(`Status: ${response.status}, Cause: ${errorText}`);
         }
 
@@ -99,6 +101,9 @@ export default function EventParticipants() {
 
         if (!participantRolesResponse.ok) {
           const errorText = await participantRolesResponse.text();
+          setError(
+            `Status: ${participantRolesResponse.status}, Cause: ${errorText}`
+          );
           throw new Error(
             `Status: ${participantRolesResponse.status}, Cause: ${errorText}`
           );
@@ -116,6 +121,26 @@ export default function EventParticipants() {
     };
     fetchData();
   }, [eventId]);
+
+  const handleSendEmail = async (participantName?: string) => {
+    try {
+      const res = await fetch(`/api/sendEmail/${participantName}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Status: ${res.status}, Cause: ${errorText}`);
+      }
+      const data = await res.json();
+      console.log("Email sent successfully:", data);
+      alert("Email sent successfully!");
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -145,6 +170,9 @@ export default function EventParticipants() {
       </h2>
       <div className={styles.searchBox}>
         <Flex direction="column" gap={4} w="100%">
+          <Button pattern="teal" onClick={() => handleSendEmail("heyhahh")}>
+            Send Email
+          </Button>
           <LocalSearchBox
             search={search}
             setSearch={setSearch}

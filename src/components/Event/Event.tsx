@@ -81,12 +81,21 @@ export default function EventPage() {
     if (d) path += `/${d}`;
     try {
       const res = await fetch(path);
-      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+
       const data = await res.json();
+      if (!res.ok) {
+        // payload.error and payload.cause come from your Next.js route
+        const { error: errMsg, cause } = data as {
+          error: string;
+          cause?: string;
+        };
+        throw new Error(cause ? `${errMsg}: ${cause}` : errMsg);
+      }
       setEventList(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
-      setError(`Failed to fetch events — ${err}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
