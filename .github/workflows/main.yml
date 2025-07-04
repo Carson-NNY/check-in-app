@@ -80,7 +80,7 @@ jobs:
          java -jar ./libs/ai-code-autoreview-sdk-1.0.jar . 2>&1 | tee ai-review-debug.log
   
       - name: Upload debug log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ai-review-debug-log
           path: ai-review-debug.log
