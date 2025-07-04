@@ -34,7 +34,7 @@ export async function fetchEvents() {
   }
 }
 
-// Fetch existing events by date range (start, end in "YYYY-MM-DD" format)
+// Fetch existing events by date range(start, end in "YYYY-MM-DD" format)
 export async function fetchEventsByDateRange(start: string, end: string) {
   try {
     const res = await fetch(EVENT_GET_URL, {
