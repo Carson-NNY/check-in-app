@@ -3,7 +3,7 @@
 import styles from "./Button.module.css";
 import React, { ReactNode } from "react";
 
-// Define the button patterns
+// Define button patterns
 type ButtonPattern = "blue" | "grey" | "blueOutline" | "green" | "red" | "teal";
 
 interface ButtonProps {
