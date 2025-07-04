@@ -182,7 +182,7 @@ export async function createEmail(email: string, contactId: string) {
           values: {
             email: email,
             contact_id: contactId,
-            location_type_id: 3, // we assume 3 which is "Main" as the default location type
+            location_type_id: 3, // we assume 3 which is "Main" as the default location type1
             is_primary: true, // set this email as primary
           },
         }),
