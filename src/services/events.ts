@@ -1,4 +1,3 @@
-// construct the URLs and headers
 const EVENT_GET_URL = process.env.CIVICRM_BASE_URL + "/Event/get";
 const API_KEY = process.env.CIVICRM_API_KEY || "";
 
