@@ -196,7 +196,7 @@ export async function createEmail(email: string, contactId: string) {
     }
 
     const payload = await res.json();
-    // console.log("raw email payload:", payload);
+    // console.log("raw email payload:", payload)
     return payload.values[0];
   } catch (error) {
     console.error("Error creating Email:", error);
