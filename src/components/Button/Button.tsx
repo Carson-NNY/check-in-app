@@ -14,7 +14,7 @@ interface ButtonProps {
   blurBackground?: boolean;
 }
 
-// customizable button component, displayed based on the pattern prop
+// customizable button component, displayed based on the pattern prop. (make)
 export default function Button({
   pattern,
   onClick,
