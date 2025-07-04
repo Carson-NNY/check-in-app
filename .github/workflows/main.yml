@@ -61,6 +61,7 @@ jobs:
 
       # 5) Run the JAR against your Next.js code
       - name: Run AI code review
+        run: java -jar tmp-review/ai-code-autoreview-sdk/target/ai-code-autoreview-sdk-1.0.jar .
         env:
           OPENAI_API_HOST: ${{ secrets.OPENAI_API_HOST }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
