@@ -1,0 +1,52 @@
+name: AI Code Review
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Full checkout so `git diff` sees everything
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2) (Optional) Build your Next.js code—just to surface errors early
+      - name: Setup Node & Install
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+
+      # 3) Set up Java
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+       # 4) Clone & build your Java CLI via git clone
+      - name: Clone AI-CodeReview SDK
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: |
+          git clone https://x-access-token:${ACCESS_TOKEN}@github.com/Carson-NNY/ai-code-auto-review.git tmp-review
+          cd tmp-review
+          # build from the multi-module root so -pl works
+          mvn -B -pl ai-code-autoreview-sdk -am clean package
+
+      # 5) Run the JAR against your Next.js code
+      - name: Run AI code review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ACCESS_TOKEN:  ${{ secrets.ACCESS_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+        run: |
+          java -jar tmp-review/ai-code-autoreview-sdk/target/ai-code-autoreview-sdk-1.0.jar .
