@@ -39,7 +39,7 @@ jobs:
       - name: Download AI-CodeReview SDK JAR
         run: |
           wget -O ./libs/ai-code-autoreview-sdk-1.0.jar \
-            https://github.com/Carson-NNY/MemoSphere/releases/download/V1/ai-code-autoreview-sdk-1.0.jar
+            https://github.com/Carson-NNY/MemoSphere/releases/download/V1/ai-code-autoreview-sdk-1.0-jar-with-dependencies.jar
 
       # 6) Capture Git metadata
       - name: Get repository name
