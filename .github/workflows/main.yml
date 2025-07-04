@@ -41,6 +41,24 @@ jobs:
           # build from the multi-module root so -pl works
           mvn -B -pl ai-code-autoreview-sdk -am clean package
 
+      # 5.1) get these Git-related environment variables
+      - name: Get repository name
+        id: repo-name
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
+
+      - name: Get branch name
+        id: branch-name
+        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: Get commit author
+        id: commit-author
+        run: echo "COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an <%ae>')" >> $GITHUB_ENV
+
+      - name: Get commit message
+        id: commit-message
+        run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
+
+
       # 5) Run the JAR against your Next.js code
       - name: Run AI code review
         env:
@@ -49,6 +67,10 @@ jobs:
           ACCESS_TOKEN:  ${{ secrets.ACCESS_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           AI_CODE_REVIEW_LOG_REPO_URI: ${{ secrets.AI_CODE_REVIEW_LOG_REPO_URI }}
+          COMMIT_PROJECT:                ${{ github.repository }}
+          COMMIT_BRANCH:                 ${{ github.ref_name }}
+          COMMIT_AUTHOR:                 ${{ steps.commit-author.outputs.COMMIT_AUTHOR }}
+          COMMIT_MESSAGE:                ${{ steps.commit-message.outputs.COMMIT_MESSAGE }}
 
         run: |
           java -jar tmp-review/ai-code-autoreview-sdk/target/ai-code-autoreview-sdk-1.0.jar .
