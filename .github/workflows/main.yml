@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 2) (Optional) build your Next.js to surface errors
+      # 2) (Optional) build your Next.js to surface errors ()
       - name: Setup Node & Install
         uses: actions/setup-node@v4
         with:
