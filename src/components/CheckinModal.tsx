@@ -27,7 +27,7 @@ type CheckinModalProps = {
 
 /*
  *  This component is currently not adopted in the codebase, but it is designed to handle check-in confirmation for participants.
- *  Keep it now for possible future use or integration.
+ *  Keep it now for possible future use or integration
  */
 export default function CheckinModal({
   participant,
